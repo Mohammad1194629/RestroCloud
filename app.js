@@ -9,6 +9,8 @@ const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#ca
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,searchTerm="",showFavorites=false;
 const cart=new Map();
+function saveCart(){try{localStorage.setItem("restrocloud-cart",JSON.stringify([...cart.values()].map(i=>({id:i.id,quantity:i.quantity}))));}catch{}}
+function restoreCart(){try{const saved=JSON.parse(localStorage.getItem("restrocloud-cart")||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),quantity:q});});}catch{}}
 let favorites=new Set();
 try{favorites=new Set(JSON.parse(localStorage.getItem("restrocloud-favorites")||"[]"));}catch{favorites=new Set();}
 const money=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0))+" د.ع";
@@ -16,9 +18,10 @@ function renderCart(){
  const qty=[...cart.values()].reduce((s,i)=>s+i.quantity,0);
  const total=[...cart.values()].reduce((s,i)=>s+i.price*i.quantity,0);
  cartCount.textContent="السلة "+new Intl.NumberFormat("ar-IQ").format(qty);
+ $("#cart-panel").classList.toggle("cart-panel-visible",qty>0);
  cartSummary.textContent=qty?qty+" صنف · المجموع "+money(total):"لم تضف أي صنف بعد.";
  $("#checkout-total").textContent=money(total);
- cartItems.innerHTML="";
+ cartItems.innerHTML="";saveCart();
  if(!qty){cartItems.innerHTML='<p class="empty-cart">السلة فارغة. أضف الأصناف التي تريدها من القائمة.</p>';return;}
  cart.forEach(item=>{
   const row=document.createElement("div");row.className="cart-item-row";
@@ -82,21 +85,24 @@ async function loadMenu(){
  const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
   supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order"),
   supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order"),
-  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
+  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
   supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number")
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
  if(itemRes.error){notice.textContent="تعذر تحميل المنتجات: "+itemRes.error.message;return;}
  if(tableRes.error)console.warn("تعذر تحميل الطاولات",tableRes.error);
- products=itemRes.data||[];tables=tableRes.data||[];
+ products=itemRes.data||[];tables=tableRes.data||[];restoreCart();renderCart();
  orderingEnabled=settingRes.data?.ordering_enabled===true;
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
+ if(settingRes.data?.cover_url){const cover=settingRes.data.cover_url.trim();if(cover.startsWith("https://"))document.querySelector(".hero").style.backgroundImage="linear-gradient(110deg,rgba(26,20,16,.84),rgba(26,20,16,.62)),url("+cover+")";}
+ if(settingRes.data?.phone)$("#footer-phone").textContent="للتواصل: "+settingRes.data.phone;
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
  const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر الطاولة</option>';
  tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);tableSelect.append(opt);});
+ const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
  if(!products.length){notice.textContent="المنيو قيد التجهيز. ستظهر الأصناف هنا بعد إضافتها.";return;}
  notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
 }
@@ -123,7 +129,7 @@ $("#checkout-form").addEventListener("submit",async e=>{
    p_notes:$("#order-notes").value.trim()||null,p_items:items
   });
   if(error)throw error;
-  cart.clear();renderCart();e.target.reset();updateOrderFields();
+  cart.clear();renderCart();try{localStorage.removeItem("restrocloud-cart");}catch{}e.target.reset();updateOrderFields();
   checkoutMessage.textContent="تم إرسال طلبك بنجاح. رقم الطلب: "+data.order_number+" — المجموع: "+money(data.total);
  }catch(err){checkoutMessage.textContent="تعذر إرسال الطلب: "+(err.message||"حدث خطأ غير متوقع");}
  finally{submit.disabled=!orderingEnabled;}
