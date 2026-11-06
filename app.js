@@ -7,8 +7,10 @@ const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
 const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#cart-items");
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
-let products=[],tables=[],activeCategory="all",orderingEnabled=false;
+let products=[],tables=[],activeCategory="all",orderingEnabled=false,searchTerm="",showFavorites=false;
 const cart=new Map();
+let favorites=new Set();
+try{favorites=new Set(JSON.parse(localStorage.getItem("restrocloud-favorites")||"[]"));}catch{favorites=new Set();}
 const money=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0))+" د.ع";
 function renderCart(){
  const qty=[...cart.values()].reduce((s,i)=>s+i.quantity,0);
@@ -43,7 +45,7 @@ function renderCategories(cats){
 }
 function renderProducts(){
  productsEl.innerHTML="";
- const visible=products.filter(p=>activeCategory==="all"||p.category_id===activeCategory);
+ const visible=products.filter(p=>(activeCategory==="all"||p.category_id===activeCategory)&&(!searchTerm||(p.name+" "+(p.description||"")).toLocaleLowerCase("ar").includes(searchTerm))&&(!showFavorites||favorites.has(p.id)));
  if(!visible.length){productsEl.innerHTML='<div class="notice">لا توجد أصناف منشورة في هذا القسم حالياً.</div>';return;}
  visible.forEach(p=>{
   const card=document.createElement("article");card.className="product-card";
@@ -96,6 +98,8 @@ async function loadMenu(){
  notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
 }
 $("#order-type").addEventListener("change",updateOrderFields);
+$("#menu-search").addEventListener("input",e=>{searchTerm=e.target.value.trim().toLocaleLowerCase("ar");renderProducts();});
+$("#favorites-toggle").addEventListener("click",()=>{showFavorites=!showFavorites;$("#favorites-toggle").classList.toggle("active",showFavorites);$("#favorites-toggle").setAttribute("aria-pressed",String(showFavorites));$("#favorites-toggle").textContent=showFavorites?"♥ عرض الكل":"♡ المفضلة";renderProducts();});
 $("#checkout-open").addEventListener("click",()=>{checkoutPanel.classList.remove("hidden");checkoutPanel.scrollIntoView({behavior:"smooth",block:"start"});});
 $("#checkout-close").addEventListener("click",()=>checkoutPanel.classList.add("hidden"));
 $("#cart-clear").addEventListener("click",()=>{cart.clear();renderCart();});
