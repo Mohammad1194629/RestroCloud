@@ -210,11 +210,13 @@ footer small{font-size:10px;color:#ffffff70}
 
 
 /* Customer header hamburger menu */
-.menu-dropdown{position:relative;z-index:20}
-.menu-toggle{width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #ffffff66;border-radius:12px;background:#ffffff12;cursor:pointer;list-style:none}
+.menu-dropdown{position:relative;z-index:9999}
+.menu-toggle{width:46px;height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #ffffff66;border-radius:13px;background:#ffffff18;cursor:pointer;list-style:none;position:relative;z-index:10000}
 .menu-toggle::-webkit-details-marker{display:none}
 .menu-toggle::marker{content:""}
-.menu-toggle span{display:block;width:21px;height:2px;border-radius:2px;background:#fff}
-.menu-dropdown-panel{position:absolute;top:calc(100% + 9px);left:0;min-width:155px;padding:7px;background:#fff;border:1px solid #eee4d9;border-radius:12px;box-shadow:0 10px 28px #0003}
-.menu-dropdown-panel a{display:block;padding:10px 12px;border-radius:8px;color:#1a1410;text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap}
-.menu-dropdown-panel a:hover,.menu-dropdown-panel a:focus{background:#f8eee9;color:#c0392b}
+.menu-toggle span{display:block;width:21px;height:2px;border-radius:2px;background:#fff;pointer-events:none}
+.menu-dropdown-panel{position:fixed;top:78px;right:18px;left:auto;z-index:10001;min-width:190px;padding:7px;background:#fff;border:1px solid #eee4d9;border-radius:14px;box-shadow:0 12px 32px #0004;pointer-events:auto}
+.menu-dropdown-panel a{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:11px 14px;border-radius:10px;color:#1a1410;text-decoration:none;font-family:Cairo,sans-serif;font-size:14px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;position:relative;z-index:10002}
+.menu-dropdown-panel a:before{content:"";width:7px;height:7px;border-radius:50%;background:#c0392b;flex:0 0 7px}
+.menu-dropdown-panel a:hover,.menu-dropdown-panel a:focus{background:#f8eee9;color:#c0392b;outline:2px solid #c0392b22}
+.menu-dropdown[open] .menu-dropdown-panel{display:block}
