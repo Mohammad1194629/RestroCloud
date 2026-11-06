@@ -44,5 +44,5 @@ document.querySelector("#product-form").addEventListener("submit",async e=>{
  if(error){message(productMsg,"لم يتم حفظ الصنف: "+error.message,true);return;}
  e.target.reset();message(productMsg,"تم حفظ الصنف.");await loadProducts();
 });
-supabase.auth.onAuthStateChange(()=>{loadDashboard();});
+// لا تستدعِ استعلامات Supabase داخل onAuthStateChange؛ قد يسبب ذلك تعليق جلسة المصادقة.
 loadDashboard();
