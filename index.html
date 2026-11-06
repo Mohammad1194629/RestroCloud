@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#26352b">
-  <meta name="description" content="منيو مطعم القلعة تلعفر">
-  <title>مطعم القلعة تلعفر | المنيو</title>
+  <meta name="description" content="قائمة طعام مطعم القلعة تلعفر">
+  <title>مطعم القلعة تلعفر | قائمة الطعام</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
@@ -13,8 +13,7 @@
 </head>
 <body>
   <header class="hero">
-    <div class="hero-shade"></div>
-    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">إدارة المطعم</a></nav>
+    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">لوحة الإدارة</a></nav>
     <div class="hero-copy">
       <span class="eyebrow">أهلاً وسهلاً بكم</span>
       <h1>مطعم القلعة</h1>
@@ -31,10 +30,36 @@
     <div id="category-list" class="category-list" aria-label="أقسام الطعام"></div>
     <section id="product-grid" class="product-grid"></section>
     <section class="cart-panel" id="cart-panel">
-      <div><h3>سلة اختياراتك</h3><p id="cart-summary">لم تضف أي صنف بعد.</p></div>
+      <div class="cart-panel-copy"><h3>سلة طلبك</h3><p id="cart-summary">لم تضف أي صنف بعد.</p></div>
+      <button id="checkout-open" class="cart-checkout-btn" type="button">عرض السلة وإكمال الطلب</button>
       <button id="cart-clear" class="quiet-btn" type="button">إفراغ السلة</button>
     </section>
-    <p class="footnote">للطلب الإلكتروني، نكمل تفعيل الطلبات بعد تجهيز قناة آمنة لحفظ الطلبات في قاعدة البيانات.</p>
+    <section id="checkout-panel" class="checkout-panel hidden">
+      <div class="checkout-head"><div><span class="eyebrow dark">إتمام الطلب</span><h2>راجع طلبك</h2></div><button id="checkout-close" class="danger-btn" type="button">إغلاق</button></div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="checkout-total">المجموع: <strong id="checkout-total">٠ د.ع</strong></div>
+      <form id="checkout-form">
+        <div class="field-grid">
+          <label class="field">نوع الطلب
+            <select id="order-type" required>
+              <option value="dine_in">تناول الطعام داخل المطعم</option>
+              <option value="delivery">توصيل إلى العنوان</option>
+              <option value="pickup">استلام من المطعم</option>
+            </select>
+          </label>
+          <label class="field">اسم الزبون<input id="customer-name" maxlength="100" placeholder="الاسم"></label>
+          <label class="field" id="table-field">رقم الطاولة
+            <select id="table-id"><option value="">اختر الطاولة</option></select>
+          </label>
+          <label class="field" id="phone-field">رقم الهاتف<input id="customer-phone" type="tel" maxlength="30" placeholder="07xxxxxxxxx"></label>
+          <label class="field hidden" id="address-field">عنوان التوصيل<input id="delivery-address" maxlength="300" placeholder="المنطقة وأقرب نقطة دالة"></label>
+        </div>
+        <label class="field checkout-notes">ملاحظات على الطلب<textarea id="order-notes" maxlength="500" placeholder="مثلاً: بدون بصل، أو ملاحظات أخرى"></textarea></label>
+        <p id="checkout-message" class="status-msg" role="status"></p>
+        <button id="checkout-submit" class="solid-btn checkout-submit" type="submit">إرسال الطلب إلى المطعم</button>
+        <p id="ordering-disabled-note" class="small-note">استقبال الطلبات غير مفعّل حالياً. القائمة والأسعار تجريبية.</p>
+      </form>
+    </section>
   </main>
   <footer>مطعم القلعة تلعفر</footer>
   <script type="module" src="app.js"></script>
