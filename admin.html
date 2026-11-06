@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#26352b"><title>إدارة مطعم القلعة</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head>
+<body class="admin-page">
+<main class="admin-wrap">
+  <header class="admin-head"><h1>إدارة مطعم القلعة</h1><a class="admin-link" style="color:#26352b;border-color:#c9c2b5" href="index.html">عرض المنيو</a></header>
+  <section class="panel" id="login-panel">
+    <h2>تسجيل دخول الإدارة</h2><p class="footnote" style="text-align:right">استخدم بريد الإدارة وكلمة المرور المسجلين في Supabase.</p>
+    <form id="login-form"><div class="field-grid"><label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label></div><div class="form-actions"><button class="solid-btn" type="submit">تسجيل الدخول</button></div></form><p id="login-msg" class="status-msg" role="status"></p>
+  </section>
+  <section id="dashboard" class="hidden">
+    <div class="panel"><div class="admin-head"><h2>إضافة صنف جديد</h2><button id="logout" class="quiet-btn" style="background:#26352b">تسجيل الخروج</button></div>
+      <form id="product-form"><div class="field-grid">
+        <label class="field">اسم الصنف<input id="product-name" maxlength="140" required></label>
+        <label class="field">القسم<select id="product-category" required></select></label>
+        <label class="field">السعر بالدينار العراقي<input id="product-price" type="number" min="0" step="250" required></label>
+        <label class="field">رابط الصورة (اختياري)<input id="product-image" type="url" placeholder="https://..."></label>
+      </div><label class="field" style="margin-top:12px">وصف الصنف<textarea id="product-description"></textarea></label>
+      <div class="form-actions"><button class="solid-btn" type="submit">حفظ الصنف</button></div></form><p id="product-msg" class="status-msg" role="status"></p>
+    </div>
+    <div class="panel"><h2>الأصناف الحالية</h2><div class="table-wrap"><table><thead><tr><th>الصنف</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="product-rows"></tbody></table></div></div>
+  </section>
+</main>
+<script type="module" src="admin.js"></script>
+</body></html>
