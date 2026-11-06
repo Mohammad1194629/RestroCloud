@@ -207,3 +207,14 @@ footer small{font-size:10px;color:#ffffff70}
 .message-body{font-size:13px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}
 .message-actions{display:flex;gap:7px;justify-content:flex-start}
 @media(max-width:700px){.contact-section{grid-template-columns:1fr;padding:24px 14px;gap:12px}.contact-copy h2{font-size:23px}.contact-form{padding:14px}.message-head{align-items:flex-start;flex-direction:column;gap:2px}}
+
+
+/* Customer header hamburger menu */
+.menu-dropdown{position:relative;z-index:20}
+.menu-toggle{width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #ffffff66;border-radius:12px;background:#ffffff12;cursor:pointer;list-style:none}
+.menu-toggle::-webkit-details-marker{display:none}
+.menu-toggle::marker{content:""}
+.menu-toggle span{display:block;width:21px;height:2px;border-radius:2px;background:#fff}
+.menu-dropdown-panel{position:absolute;top:calc(100% + 9px);left:0;min-width:155px;padding:7px;background:#fff;border:1px solid #eee4d9;border-radius:12px;box-shadow:0 10px 28px #0003}
+.menu-dropdown-panel a{display:block;padding:10px 12px;border-radius:8px;color:#1a1410;text-decoration:none;font-size:13px;font-weight:700;white-space:nowrap}
+.menu-dropdown-panel a:hover,.menu-dropdown-panel a:focus{background:#f8eee9;color:#c0392b}
