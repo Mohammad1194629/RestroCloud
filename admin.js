@@ -33,6 +33,7 @@ async function uploadImage(file){
  if(error)throw error;
  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
+function storagePathFromPublicUrl(url){const marker="/storage/v1/object/public/restaurant-product-images/";const i=url.indexOf(marker);return i<0?null:decodeURIComponent(url.slice(i+marker.length));}
 async function loadProducts(){
  const {data,error}=await supabase.from("products").select("id,name,price,is_available,image_url,is_spicy").eq("restaurant_id",RESTAURANT_ID).order("created_at",{ascending:false});
  if(error){message(productMsg,"تعذر تحميل المنتجات: "+error.message,true);return;}
@@ -47,7 +48,7 @@ async function loadProducts(){
   const toggle=document.createElement("button");toggle.className=p.is_available?"danger-btn":"add-btn";toggle.textContent=p.is_available?"إخفاء":"إظهار";
   toggle.onclick=async()=>{const {error}=await supabase.from("products").update({is_available:!p.is_available}).eq("id",p.id).eq("restaurant_id",RESTAURANT_ID);if(error)message(productMsg,error.message,true);else await loadProducts();};
   const remove=document.createElement("button");remove.className="delete-btn";remove.textContent="حذف";
-  remove.onclick=async()=>{if(!window.confirm("حذف الصنف "+p.name+"؟"))return;const {error}=await supabase.from("products").delete().eq("id",p.id).eq("restaurant_id",RESTAURANT_ID);if(error){message(productMsg,error.message,true);return;}message(productMsg,"تم حذف الصنف.");await loadProducts();};
+  remove.onclick=async()=>{if(!window.confirm("حذف الصنف "+p.name+"؟"))return;const {error}=await supabase.from("products").delete().eq("id",p.id).eq("restaurant_id",RESTAURANT_ID);if(error){message(productMsg,error.message,true);return;}if(p.image_url){const path=storagePathFromPublicUrl(p.image_url);if(path){const {error:imageError}=await supabase.storage.from(BUCKET).remove([path]);if(imageError)message(productMsg,"حُذف الصنف، لكن تعذر حذف ملف الصورة: "+imageError.message,true);}}if(!productMsg.textContent.startsWith("حُذف الصنف،"))message(productMsg,"تم حذف الصنف وصورته.");await loadProducts();};
   actions.append(toggle,remove);tr.append(imageCell,name,price,status,actions);rows.append(tr);
  });
 }
