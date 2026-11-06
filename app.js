@@ -56,14 +56,17 @@ function renderProducts(){
    image.append(img);
   }else{image.classList.add("image-fallback");image.textContent="لا توجد صورة";}
   const body=document.createElement("div");body.className="product-body";
+  const titleRow=document.createElement("div");titleRow.className="product-title-row";
   const title=document.createElement("h3");title.textContent=p.name;
+  const favorite=document.createElement("button");favorite.type="button";favorite.className="favorite-btn"+(favorites.has(p.id)?" is-favorite":"");favorite.textContent=favorites.has(p.id)?"♥":"♡";favorite.setAttribute("aria-label",favorites.has(p.id)?"إزالة من المفضلة":"إضافة للمفضلة");favorite.onclick=()=>{if(favorites.has(p.id))favorites.delete(p.id);else favorites.add(p.id);try{localStorage.setItem("restrocloud-favorites",JSON.stringify([...favorites]));}catch{}renderProducts();};
+  titleRow.append(title,favorite);
   const desc=document.createElement("p");desc.textContent=p.description||"";
   if(p.is_spicy){const tag=document.createElement("span");tag.className="spicy-badge";tag.textContent="🌶️ حار";body.append(tag);}
   const bottom=document.createElement("div");bottom.className="product-bottom";
   const price=document.createElement("span");price.className="price";price.textContent=money(p.price);
   const add=document.createElement("button");add.className="add-btn";add.type="button";add.textContent="أضف للسلة";
   add.onclick=()=>{const item=cart.get(p.id)||{id:p.id,name:p.name,price:Number(p.price),quantity:0};item.quantity++;cart.set(p.id,item);renderCart();add.textContent="أضيف";setTimeout(()=>add.textContent="أضف للسلة",800);};
-  bottom.append(price,add);body.append(title,desc,bottom);card.append(image,body);productsEl.append(card);
+  bottom.append(price,add);body.append(titleRow,desc,bottom);card.append(image,body);productsEl.append(card);
  });
 }
 function updateOrderFields(){
