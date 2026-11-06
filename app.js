@@ -54,10 +54,10 @@ function renderProducts(){
   const card=document.createElement("article");card.className="product-card";
   const image=document.createElement("div");image.className="product-image";
   if(p.image_url){
-   const img=document.createElement("img");img.src=p.image_url;img.alt="صورة "+p.name;img.loading="lazy";img.decoding="async";img.referrerPolicy="no-referrer";
-   img.onerror=()=>{image.innerHTML="";image.classList.add("image-fallback");image.textContent="الصورة غير متاحة";};
+   const img=document.createElement("img");img.src=p.image_url;img.alt="صورة "+p.name;img.loading="lazy";img.decoding="async";
+   img.onerror=()=>{image.innerHTML="";image.classList.add("image-fallback");image.textContent="🍽️";};
    image.append(img);
-  }else{image.classList.add("image-fallback");image.textContent="لا توجد صورة";}
+  }else{image.classList.add("image-fallback");image.textContent="🍽️";}
   const body=document.createElement("div");body.className="product-body";
   const titleRow=document.createElement("div");titleRow.className="product-title-row";
   const title=document.createElement("h3");title.textContent=p.name;
