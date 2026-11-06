@@ -13,19 +13,24 @@
 </head>
 <body>
   <header class="hero">
-    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">لوحة الإدارة</a></nav>
+    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">دخول الإدارة</a></nav>
     <div class="hero-copy">
-      <span class="eyebrow" id="welcome-text">أهلاً وسهلاً بكم</span>
+      <span class="hero-kicker" id="welcome-text">أهلاً وسهلاً بكم</span>
       <h1>مطعم القلعة</h1>
       <p id="restaurant-description">تلعفر · نكهة تجمعنا</p>
-      <a href="#menu" class="primary-btn">تصفح قائمة الطعام</a>
+      <a href="#menu" class="primary-btn">اكتشف قائمة الطعام <span aria-hidden="true">←</span></a>
+      <div class="hero-points"><span>🍽️ أطباق متنوعة</span><span>🥘 نكهات عراقية</span><span>✨ تجربة سهلة</span></div>
     </div>
   </header>
   <main id="menu" class="page-wrap">
     <section class="intro-row">
-      <div><span class="eyebrow dark">قائمة الطعام</span><h2>اختَر ما تشتهيه</h2><p>تصفح الأصناف المتاحة وأسعارها.</p></div>
+      <div><span class="eyebrow dark">قائمتنا</span><h2>اختر طبقك المفضل</h2><p>اكتشف الأطباق والمشروبات والحلويات.</p></div>
       <div class="cart-count" id="cart-count">السلة ٠</div>
     </section>
+    <div class="menu-tools">
+      <label class="search-box"><span aria-hidden="true">⌕</span><input id="menu-search" type="search" placeholder="ابحث عن طبق أو مشروب..." autocomplete="off"></label>
+      <button id="favorites-toggle" class="favorites-toggle" type="button" aria-pressed="false">♡ المفضلة</button>
+    </div>
     <div id="notice" class="notice">جارٍ تحميل قائمة الطعام...</div>
     <div id="category-list" class="category-list" aria-label="أقسام الطعام"></div>
     <section id="product-grid" class="product-grid"></section>
@@ -61,7 +66,7 @@
       </form>
     </section>
   </main>
-  <footer>مطعم القلعة تلعفر</footer>
+  <footer><strong>مطعم القلعة تلعفر</strong><span id="footer-phone"></span><small>قائمة الطعام الإلكترونية · الأسعار والمنتجات المعروضة تجريبية لحين اعتماد إدارة المطعم</small></footer>
   <script type="module" src="app.js"></script>
 </body>
 </html>
