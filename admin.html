@@ -27,7 +27,7 @@
    <button class="nav-item" data-page="products"><span>☷</span> إدارة القائمة</button>
    <button class="nav-item" data-page="orders"><span>▣</span> الطلبات <b id="orders-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="reports"><span>▤</span> التقارير</button>
-   <button class="nav-item" data-page="messages"><span>✉</span> الرسائل</button>
+   <button class="nav-item" data-page="messages"><span>✉</span> الرسائل <b id="messages-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="settings"><span>⚙</span> إعدادات الموقع</button>
    <button class="nav-item" data-page="password"><span>⌑</span> تغيير كلمة المرور</button>
   </nav>
@@ -80,7 +80,7 @@
    <div class="panel"><h2>ملخص النشاط</h2><p id="report-summary" class="small-note">ستظهر الإحصاءات بعد وصول الطلبات.</p></div>
   </section>
   <section id="page-messages" class="admin-page-section hidden">
-   <div class="panel empty-state"><div class="empty-state-icon">✉</div><h2>الرسائل</h2><p>قسم الرسائل موجود في القائمة. لا يوجد حالياً مصدر رسائل مربوط بالموقع؛ لن تظهر رسائل حتى نضيف نموذج تواصل ونربطه بقاعدة البيانات.</p></div>
+   <div class="panel"><div class="section-heading"><div><h2>رسائل الزبائن</h2><p>استفسارات وملاحظات مرسلة من نموذج التواصل في الموقع.</p></div><button id="refresh-messages" class="outline-btn" type="button">تحديث</button></div><div id="messages-list" class="messages-list"><p class="small-note">جارٍ تحميل الرسائل...</p></div></div>
   </section>
   <section id="page-settings" class="admin-page-section hidden">
    <div class="panel"><h2>إعدادات الموقع</h2><p class="small-note">بيانات المطعم التي تظهر للزبائن.</p>
