@@ -13,7 +13,17 @@
 </head>
 <body>
   <header class="hero">
-    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">دخول الإدارة</a></nav>
+    <nav class="topbar">
+      <span class="brand-mark">ق</span>
+      <details class="menu-dropdown">
+        <summary class="menu-toggle" aria-label="فتح القائمة" title="القائمة">
+          <span></span><span></span><span></span>
+        </summary>
+        <div class="menu-dropdown-panel">
+          <a href="admin.html">لوحة التحكم</a>
+        </div>
+      </details>
+    </nav>
     <div class="hero-copy">
       <span class="hero-kicker" id="welcome-text">أهلاً وسهلاً بكم</span>
       <h1>مطعم القلعة</h1>
