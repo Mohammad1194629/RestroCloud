@@ -66,6 +66,16 @@
       </form>
     </section>
   </main>
+    <section id="contact" class="contact-section">
+      <div class="contact-copy"><span class="eyebrow dark">تواصل معنا</span><h2>يسعدنا سماع رأيك</h2><p>أرسل استفسارك أو ملاحظتك إلى إدارة المطعم.</p></div>
+      <form id="contact-form" class="contact-form">
+        <label class="field">الاسم<input id="contact-name" maxlength="100" required placeholder="اسمك"></label>
+        <label class="field">رقم الهاتف (اختياري)<input id="contact-phone" maxlength="40" type="tel" placeholder="07xxxxxxxxx"></label>
+        <label class="field">رسالتك<textarea id="contact-message" maxlength="2000" required placeholder="اكتب رسالتك هنا..."></textarea></label>
+        <button class="solid-btn" type="submit">إرسال الرسالة</button>
+        <p id="contact-status" class="status-msg" role="status"></p>
+      </form>
+    </section>
   <footer><strong>مطعم القلعة تلعفر</strong><span id="footer-phone"></span><small>قائمة الطعام الإلكترونية · الأسعار والمنتجات المعروضة تجريبية لحين اعتماد إدارة المطعم</small></footer>
   <script type="module" src="app.js"></script>
 </body>
