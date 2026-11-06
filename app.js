@@ -74,12 +74,17 @@ function renderProducts(){
 }
 function updateOrderFields(){
  const type=$("#order-type").value;
- $("#table-field").classList.toggle("hidden",type!=="dine_in");
- $("#address-field").classList.toggle("hidden",type!=="delivery");
- $("#phone-field").classList.toggle("hidden",type==="dine_in");
- $("#customer-phone").required=type==="delivery";
- $("#delivery-address").required=type==="delivery";
- $("#table-id").required=type==="dine_in";
+ const dineIn=type==="dine_in";
+ const delivery=type==="delivery";
+ $("#table-field").classList.toggle("hidden",!dineIn);
+ $("#address-field").classList.toggle("hidden",!delivery);
+ $("#phone-field").classList.toggle("hidden",dineIn);
+ $("#customer-name").required=true;
+ $("#customer-phone").required=!dineIn;
+ $("#delivery-address").required=delivery;
+ $("#table-id").required=dineIn;
+ if(!dineIn) $("#table-id").value="";
+ if(!delivery) $("#delivery-address").value="";
 }
 async function loadMenu(){
  const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
@@ -90,8 +95,13 @@ async function loadMenu(){
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
  if(itemRes.error){notice.textContent="تعذر تحميل المنتجات: "+itemRes.error.message;return;}
- if(tableRes.error)console.warn("تعذر تحميل الطاولات",tableRes.error);
- products=(itemRes.data||[]).filter(p=>(catRes.data||[]).some(c=>c.id===p.category_id));tables=tableRes.data||[];restoreCart();renderCart();
+ if(tableRes.error){
+  console.error("تعذر تحميل الطاولات",tableRes.error);
+  tables=[];
+  notice.textContent="تعذر تحميل أرقام الطاولات حالياً. يمكنك اختيار التوصيل أو الاستلام، أو إعادة تحميل الصفحة.";
+  notice.classList.remove("hidden");
+ }else{tables=tableRes.data||[];}
+ products=(itemRes.data||[]).filter(p=>(catRes.data||[]).some(c=>c.id===p.category_id));restoreCart();renderCart();
  orderingEnabled=settingRes.data?.ordering_enabled===true;
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
@@ -100,8 +110,13 @@ async function loadMenu(){
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
- const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر الطاولة</option>';
+ const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر رقم الطاولة</option>';
  tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);tableSelect.append(opt);});
+ tableSelect.disabled=tables.length===0;
+ if(!tables.length && $("#order-type").value==="dine_in"){
+  $("#checkout-submit").disabled=true;
+  checkoutMessage.textContent="لا توجد طاولات متاحة للاختيار حالياً. يرجى التواصل مع المطعم.";
+ }
  const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
  if(!products.length){notice.textContent="المنيو قيد التجهيز. ستظهر الأصناف هنا بعد إضافتها.";return;}
  notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
@@ -114,26 +129,48 @@ $("#checkout-close").addEventListener("click",()=>checkoutPanel.classList.add("h
 $("#cart-clear").addEventListener("click",()=>{cart.clear();renderCart();});
 $("#checkout-form").addEventListener("submit",async e=>{
  e.preventDefault();
- if(!cart.size){checkoutMessage.textContent="أضف صنفاً واحداً على الأقل إلى السلة.";return;}
- if(!orderingEnabled){checkoutMessage.textContent="استقبال الطلبات غير مفعّل حالياً. يرجى مراجعة المطعم قبل اعتماد الأسعار التجريبية.";return;}
+ if(!cart.size){checkoutMessage.textContent="السلة فارغة. أضف وجبة أولاً.";return;}
+ if(!orderingEnabled){checkoutMessage.textContent="استقبال الطلبات متوقف حالياً. يرجى التواصل مع المطعم.";return;}
+ const form=e.currentTarget;
+ if(!form.reportValidity())return;
  const type=$("#order-type").value;
+ const tableId=type==="dine_in"?$("#table-id").value:null;
+ const phone=$("#customer-phone").value.trim();
+ const address=$("#delivery-address").value.trim();
+ if(type==="dine_in"&&(!tableId||!tables.some(t=>t.id===tableId))){
+  checkoutMessage.textContent="اختر رقم الطاولة من القائمة قبل إرسال الطلب.";$("#table-id").focus();return;
+ }
+ if(type==="delivery"&&(!phone||!address)){
+  checkoutMessage.textContent="للتوصيل، أدخل رقم الهاتف وعنوان التوصيل.";return;
+ }
+ if(type==="pickup"&&!phone){
+  checkoutMessage.textContent="أدخل رقم هاتف للتواصل بشأن طلب الاستلام.";$("#customer-phone").focus();return;
+ }
  const items=[...cart.values()].map(i=>({product_id:i.id,quantity:i.quantity}));
- const submit=$("#checkout-submit");submit.disabled=true;checkoutMessage.textContent="جارٍ إرسال الطلب...";
+ const submit=$("#checkout-submit");submit.disabled=true;checkoutMessage.textContent="جارٍ إرسال الطلب إلى المطعم...";
  try{
   const {data,error}=await supabase.rpc("submit_restaurant_order",{
    p_restaurant_id:RESTAURANT_ID,p_order_type:type,
-   p_table_id:type==="dine_in"?($("#table-id").value||null):null,
-   p_customer_name:$("#customer-name").value.trim()||null,
-   p_customer_phone:$("#customer-phone").value.trim()||null,
-   p_delivery_address:type==="delivery"?$("#delivery-address").value.trim():null,
+   p_table_id:tableId,
+   p_customer_name:$("#customer-name").value.trim(),
+   p_customer_phone:phone||null,
+   p_delivery_address:deliveryAddressOrNull(type,address),
    p_notes:$("#order-notes").value.trim()||null,p_items:items
   });
   if(error)throw error;
-  cart.clear();renderCart();try{localStorage.removeItem("restrocloud-cart");}catch{}e.target.reset();updateOrderFields();
-  checkoutMessage.textContent="تم إرسال طلبك بنجاح. رقم الطلب: "+data.order_number+" — المجموع: "+money(data.total);
- }catch(err){checkoutMessage.textContent="تعذر إرسال الطلب: "+(err.message||"حدث خطأ غير متوقع");}
- finally{submit.disabled=!orderingEnabled;}
+  if(!data||!data.order_number)throw new Error("لم يصل تأكيد من قاعدة البيانات. لا تعِد إرسال الطلب قبل مراجعة المطعم.");
+  cart.clear();renderCart();try{localStorage.removeItem("restrocloud-cart");}catch{}
+  form.reset();$("#order-type").value="dine_in";updateOrderFields();
+  checkoutMessage.textContent="تم استلام طلبك بنجاح. رقم الطلب: "+data.order_number+" — المجموع: "+money(data.total)+". احتفظ برقم الطلب.";
+ }catch(err){
+  console.error("Order submission failed",err);
+  const detail=[err.message,err.details,err.hint].filter(Boolean).join(" — ");
+  checkoutMessage.textContent="تعذر إرسال الطلب: "+(detail||"حدث خطأ غير متوقع")+". لم يتم تأكيد الطلب.";
+ }finally{
+  submit.disabled=!orderingEnabled || (type==="dine_in"&&tables.length===0);
+ }
 });
+function deliveryAddressOrNull(type,address){return type==="delivery"?address:null;}
 $("#contact-form").addEventListener("submit",async e=>{
  e.preventDefault();
  const button=e.target.querySelector("button[type=submit]");
