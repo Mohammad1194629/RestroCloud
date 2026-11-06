@@ -7,7 +7,7 @@ const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
 const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#cart-items");
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
-let products=[],tables=[],activeCategory="all",orderingEnabled=false,searchTerm="",showFavorites=false;
+let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
 function saveCart(){try{localStorage.setItem("restrocloud-cart",JSON.stringify([...cart.values()].map(i=>({id:i.id,quantity:i.quantity}))));}catch{}}
 function restoreCart(){try{const saved=JSON.parse(localStorage.getItem("restrocloud-cart")||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),quantity:q});});}catch{}}
@@ -83,6 +83,7 @@ function updateOrderFields(){
  $("#customer-phone").required=!dineIn;
  $("#delivery-address").required=delivery;
  $("#table-id").required=dineIn;
+ $("#checkout-submit").disabled=!orderingEnabled||(dineIn&&tables.length===0);
  if(!dineIn) $("#table-id").value="";
  if(!delivery) $("#delivery-address").value="";
 }
@@ -97,10 +98,10 @@ async function loadMenu(){
  if(itemRes.error){notice.textContent="تعذر تحميل المنتجات: "+itemRes.error.message;return;}
  if(tableRes.error){
   console.error("تعذر تحميل الطاولات",tableRes.error);
-  tables=[];
+  tables=[];tableLoadFailed=true;
   notice.textContent="تعذر تحميل أرقام الطاولات حالياً. يمكنك اختيار التوصيل أو الاستلام، أو إعادة تحميل الصفحة.";
   notice.classList.remove("hidden");
- }else{tables=tableRes.data||[];}
+ }else{tables=tableRes.data||[];tableLoadFailed=false;}
  products=(itemRes.data||[]).filter(p=>(catRes.data||[]).some(c=>c.id===p.category_id));restoreCart();renderCart();
  orderingEnabled=settingRes.data?.ordering_enabled===true;
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
@@ -113,13 +114,13 @@ async function loadMenu(){
  const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر رقم الطاولة</option>';
  tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);tableSelect.append(opt);});
  tableSelect.disabled=tables.length===0;
- if(!tables.length && $("#order-type").value==="dine_in"){
-  $("#checkout-submit").disabled=true;
-  checkoutMessage.textContent="لا توجد طاولات متاحة للاختيار حالياً. يرجى التواصل مع المطعم.";
+ updateOrderFields();
+ if(!tables.length && $("#order-type").value==="dine_in" && orderingEnabled){
+  checkoutMessage.textContent="لا توجد طاولات متاحة للاختيار حالياً. اختر التوصيل أو الاستلام.";
  }
  const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
  if(!products.length){notice.textContent="المنيو قيد التجهيز. ستظهر الأصناف هنا بعد إضافتها.";return;}
- notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
+ if(!tableLoadFailed)notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
 }
 $("#order-type").addEventListener("change",updateOrderFields);
 $("#menu-search").addEventListener("input",e=>{searchTerm=e.target.value.trim().toLocaleLowerCase("ar");renderProducts();});
