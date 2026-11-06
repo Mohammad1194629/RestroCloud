@@ -91,7 +91,7 @@ async function loadMenu(){
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
  if(itemRes.error){notice.textContent="تعذر تحميل المنتجات: "+itemRes.error.message;return;}
  if(tableRes.error)console.warn("تعذر تحميل الطاولات",tableRes.error);
- products=itemRes.data||[];tables=tableRes.data||[];restoreCart();renderCart();
+ products=(itemRes.data||[]).filter(p=>(catRes.data||[]).some(c=>c.id===p.category_id));tables=tableRes.data||[];restoreCart();renderCart();
  orderingEnabled=settingRes.data?.ordering_enabled===true;
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
