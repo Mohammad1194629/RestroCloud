@@ -249,11 +249,11 @@ $("#login-form").addEventListener("submit",async e=>{
  e.preventDefault();msg(loginMsg,"جارٍ التحقق...");
  const {error}=await supabase.auth.signInWithPassword({email:$("#email").value.trim(),password:$("#password").value});
  if(error){msg(loginMsg,error.message,true);return;}await loadDashboard();
-setInterval(()=>{if(!dashboard.classList.contains("hidden"))loadOrders();},30000);
 });
 $("#logout").addEventListener("click",async()=>{await supabase.auth.signOut();loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");});
 $("#refresh-orders").addEventListener("click",loadOrders);
 $("#refresh-messages").addEventListener("click",loadMessages);
+setInterval(()=>{if(!dashboard.classList.contains("hidden"))loadOrders();},20000);
 document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
 loadDashboard();
