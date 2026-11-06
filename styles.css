@@ -260,7 +260,7 @@ footer small{font-size:10px;color:#ffffff70}
  .service-actions{grid-template-columns:1fr}
  .service-btn{padding:10px}
  .footer-details{grid-template-columns:repeat(2,minmax(0,1fr))}
- .footer-detail{flex-direction:column;gap:3px}
+ .footer-detail{flex-direction:row;flex-wrap:nowrap;gap:5px;justify-content:flex-start}.footer-detail b{white-space:nowrap}.footer-detail span,.footer-detail a{text-align:right;min-width:0}
  .cart-head-actions{flex-direction:column;align-items:stretch}
 }
 @media(max-width:380px){.footer-details{grid-template-columns:1fr}.cart-head-actions .quiet-btn,.cart-head-actions .danger-btn{padding:6px 8px;font-size:10px}}
