@@ -77,7 +77,7 @@ async function loadMenu(){
  const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
   supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order"),
   supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order"),
-  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
+  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
   supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number")
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
@@ -85,6 +85,8 @@ async function loadMenu(){
  if(tableRes.error)console.warn("تعذر تحميل الطاولات",tableRes.error);
  products=itemRes.data||[];tables=tableRes.data||[];
  orderingEnabled=settingRes.data?.ordering_enabled===true;
+ if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
+ if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
