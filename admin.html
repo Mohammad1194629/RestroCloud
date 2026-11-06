@@ -26,7 +26,6 @@
    <button class="nav-item active" data-page="home"><span>⌂</span> الرئيسية</button>
    <button class="nav-item" data-page="products"><span>☷</span> إدارة القائمة</button>
    <button class="nav-item" data-page="orders"><span>▣</span> الطلبات <b id="orders-badge" class="nav-badge">٠</b></button>
-   <button class="nav-item" data-page="services"><span>🔔</span> طلبات الطاولات <b id="services-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="reports"><span>▤</span> التقارير</button>
    <button class="nav-item" data-page="messages"><span>✉</span> الرسائل <b id="messages-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="settings"><span>⚙</span> إعدادات الموقع</button>
@@ -71,9 +70,6 @@
   <section id="page-orders" class="admin-page-section hidden">
    <div class="panel"><div class="section-heading"><div><h2>الطلبات الواردة</h2><p>متابعة حالة كل طلب وتفاصيله</p></div><button id="refresh-orders" class="outline-btn">تحديث</button></div><div id="orders-list" class="orders-list"><p class="small-note">جارٍ تحميل الطلبات...</p></div></div>
   </section>
-  <section id="page-services" class="admin-page-section hidden">
-   <div class="panel"><div class="section-heading"><div><h2>طلبات خدمة الطاولات</h2><p>طلبات الكابتن والتنظيف والفاتورة من الزبائن.</p></div><button id="refresh-services" class="outline-btn" type="button">تحديث</button></div><div id="service-requests-list"><p class="small-note">جارٍ تحميل الطلبات...</p></div></div>
-  </section>
   <section id="page-reports" class="admin-page-section hidden">
    <div class="stats-grid">
     <article class="stat-card"><span>عدد المنتجات</span><strong id="report-products">٠</strong></article>
@@ -95,12 +91,6 @@
      <div class="field-grid">
       <label class="field">رقم الهاتف<input id="setting-phone" type="tel" maxlength="40"></label>
       <label class="field">رقم واتساب<input id="setting-whatsapp" type="tel" maxlength="40"></label>
-      <label class="field">رقم حجز الطاولات<input id="setting-reservation-phone" type="tel" maxlength="40"></label>
-      <label class="field">عنوان المطعم<input id="setting-address" maxlength="300" placeholder="المدينة، الشارع، أقرب نقطة دالة"></label>
-      <label class="field">وقت فتح المطعم يومياً<input id="setting-opening-time" type="time"></label>
-      <label class="field">وقت إغلاق المطعم يومياً<input id="setting-closing-time" type="time"></label>
-      <label class="field">رابط موقع المطعم على الخريطة<input id="setting-map" type="url" placeholder="https://maps.google.com/..."></label>
-      <label class="field">رابط شعار المطعم<input id="setting-logo" type="url" placeholder="https://..."></label>
      </div>
      <div class="ordering-setting"><div><strong>استقبال الطلبات الإلكترونية</strong><p>عند التفعيل يستطيع الزبائن إرسال طلباتهم إلى لوحة الإدارة.</p></div><label class="switch"><input id="setting-ordering" type="checkbox"><span></span></label></div>
      <p class="warning-note">ملاحظة: راجع تفاصيل كل طلب ورقم التواصل قبل تأكيده للزبون.</p>
