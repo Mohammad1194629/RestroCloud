@@ -1,33 +1,107 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#26352b"><title>إدارة مطعم القلعة</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#26352b">
+<title>لوحة إدارة مطعم القلعة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css">
+</head>
 <body class="admin-page">
-<main class="admin-wrap">
-  <header class="admin-head"><h1>إدارة مطعم القلعة</h1><a class="admin-link" style="color:#26352b;border-color:#c9c2b5" href="index.html">عرض المنيو</a></header>
-  <section class="panel" id="login-panel">
-    <h2>تسجيل دخول الإدارة</h2><p class="footnote" style="text-align:right">استخدم بريد الإدارة وكلمة المرور المسجلين في Supabase.</p>
-    <form id="login-form"><div class="field-grid"><label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label></div><div class="form-actions"><button class="solid-btn" type="submit">تسجيل الدخول</button></div></form><p id="login-msg" class="status-msg" role="status"></p>
+<section id="login-panel" class="login-screen">
+ <div class="login-card">
+  <div class="admin-brand-mark">م</div><p class="eyebrow dark">مذاق الشرق</p><h1>لوحة الإدارة</h1><p>مطعم القلعة تلعفر</p>
+  <form id="login-form">
+   <label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label>
+   <label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label>
+   <button class="solid-btn full-btn" type="submit">تسجيل الدخول</button>
+  </form>
+  <p id="login-msg" class="status-msg" role="status"></p>
+ </div>
+</section>
+<div id="dashboard" class="admin-layout hidden">
+ <aside class="admin-sidebar">
+  <div class="sidebar-brand"><span class="sidebar-logo">م</span><div><strong>مذاق الشرق</strong><small>لوحة الإدارة</small></div></div>
+  <div class="sidebar-restaurant">مطعم القلعة تلعفر</div>
+  <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
+   <button class="nav-item active" data-page="home"><span>⌂</span> الرئيسية</button>
+   <button class="nav-item" data-page="products"><span>☷</span> إدارة القائمة</button>
+   <button class="nav-item" data-page="orders"><span>▣</span> الطلبات <b id="orders-badge" class="nav-badge">٠</b></button>
+   <button class="nav-item" data-page="reports"><span>▤</span> التقارير</button>
+   <button class="nav-item" data-page="messages"><span>✉</span> الرسائل</button>
+   <button class="nav-item" data-page="settings"><span>⚙</span> إعدادات الموقع</button>
+   <button class="nav-item" data-page="password"><span>⌑</span> تغيير كلمة المرور</button>
+  </nav>
+  <button id="logout" class="sidebar-logout">تسجيل الخروج</button>
+ </aside>
+ <main class="admin-main">
+  <header class="admin-topbar"><div><span class="eyebrow dark">نظام إدارة المطعم</span><h1 id="page-title">الرئيسية</h1></div><a href="index.html" target="_blank" rel="noopener" class="view-site-link">عرض المنيو ↗</a></header>
+  <section id="page-home" class="admin-page-section">
+   <div class="stats-grid">
+    <article class="stat-card"><span>إجمالي المنتجات</span><strong id="stat-products">٠</strong></article>
+    <article class="stat-card"><span>إجمالي الطلبات</span><strong id="stat-orders">٠</strong></article>
+    <article class="stat-card"><span>طلبات قيد الانتظار</span><strong id="stat-pending">٠</strong></article>
+    <article class="stat-card"><span>مبيعات الطلبات المكتملة</span><strong id="stat-sales">٠ د.ع</strong></article>
+   </div>
+   <div class="panel"><div class="section-heading"><div><h2>أحدث الطلبات</h2><p>آخر الطلبات التي وصلت إلى المطعم</p></div><button class="outline-btn" data-go="orders">عرض كل الطلبات</button></div><div id="recent-orders" class="recent-orders"><p class="small-note">جارٍ تحميل الطلبات...</p></div></div>
   </section>
-  <section id="dashboard" class="hidden">
-    <div class="panel"><div class="admin-head"><h2>إضافة صنف جديد</h2><button id="logout" class="quiet-btn" style="background:#26352b">تسجيل الخروج</button></div>
-      <form id="product-form">
-        <div class="field-grid">
-          <label class="field">اسم الصنف<input id="product-name" maxlength="140" required></label>
-          <label class="field">القسم<select id="product-category" required></select></label>
-          <label class="field">السعر بالدينار العراقي<input id="product-price" type="number" min="0" step="250" required></label>
-          <label class="field">رابط الصورة (اختياري)<input id="product-image" type="url" placeholder="https://..."></label>
-        </div>
-        <label class="field" style="margin-top:12px">أو اختر صورة من معرض الهاتف<input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label>
-        <img id="image-preview" class="image-preview hidden" alt="معاينة صورة الصنف">
-        <label class="field" style="margin-top:12px">وصف الصنف<textarea id="product-description" maxlength="1000" placeholder="اكتب المكونات وطريقة التقديم وأي تفاصيل مهمة..."></textarea></label>
-        <label class="spicy-option"><input id="product-spicy" type="checkbox"> 🌶️ حار — أظهر تنبيه الحار للزبائن</label>
-        <div class="form-actions"><button id="save-product" class="solid-btn" type="submit">إضافة الصنف إلى المنيو</button></div>
-      </form>
-      <p class="small-note">الصور المرفوعة: JPG أو PNG أو WebP أو AVIF، وبحجم لا يتجاوز 5 ميغابايت.</p>
-      <p id="product-msg" class="status-msg" role="status"></p>
-    </div>
-    <div class="panel"><h2>الأصناف الحالية</h2><div class="table-wrap"><table><thead><tr><th>الصورة</th><th>الصنف</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="product-rows"></tbody></table></div></div>
+  <section id="page-products" class="admin-page-section hidden">
+   <div class="panel">
+    <div class="section-heading"><div><h2 id="product-form-title">إضافة منتج جديد</h2><p>أدخل بيانات الصنف وصورته وسعره</p></div><button id="cancel-edit" class="outline-btn hidden" type="button">إلغاء التعديل</button></div>
+    <form id="product-form">
+     <input id="product-id" type="hidden">
+     <div class="field-grid">
+      <label class="field">اسم الصنف<input id="product-name" maxlength="140" required></label>
+      <label class="field">القسم<select id="product-category" required></select></label>
+      <label class="field">السعر بالدينار العراقي<input id="product-price" type="number" min="0" step="250" required></label>
+      <label class="field">رابط الصورة (اختياري)<input id="product-image" type="url" placeholder="https://..."></label>
+     </div>
+     <label class="field field-spaced">أو ارفع صورة من معرض الهاتف<input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label>
+     <img id="image-preview" class="image-preview hidden" alt="معاينة صورة المنتج">
+     <label class="field field-spaced">وصف المنتج<textarea id="product-description" maxlength="1000" placeholder="المكونات وطريقة التقديم..."></textarea></label>
+     <label class="spicy-option"><input id="product-spicy" type="checkbox"> 🌶️ حار — إظهار تنبيه للزبون</label>
+     <label class="spicy-option image-remove-option"><input id="remove-image" type="checkbox"> إزالة الصورة الحالية عند الحفظ</label>
+     <div class="form-actions"><button id="save-product" class="solid-btn" type="submit">إضافة المنتج</button><button id="reset-product" class="outline-btn" type="button">تفريغ الحقول</button></div>
+    </form>
+    <p class="small-note">الصورة: JPG أو PNG أو WebP أو AVIF، بحد أقصى 5 ميغابايت.</p><p id="product-msg" class="status-msg" role="status"></p>
+   </div>
+   <div class="panel"><div class="section-heading"><div><h2>إدارة المنتجات</h2><p>تعديل المنتج أو إخفاؤه أو حذفه</p></div><span id="product-count" class="count-pill">٠ منتج</span></div><div class="table-wrap"><table><thead><tr><th>الصورة</th><th>المنتج</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody id="product-rows"></tbody></table></div></div>
   </section>
-</main>
+  <section id="page-orders" class="admin-page-section hidden">
+   <div class="panel"><div class="section-heading"><div><h2>الطلبات الواردة</h2><p>متابعة حالة كل طلب وتفاصيله</p></div><button id="refresh-orders" class="outline-btn">تحديث</button></div><div id="orders-list" class="orders-list"><p class="small-note">جارٍ تحميل الطلبات...</p></div></div>
+  </section>
+  <section id="page-reports" class="admin-page-section hidden">
+   <div class="stats-grid">
+    <article class="stat-card"><span>عدد المنتجات</span><strong id="report-products">٠</strong></article>
+    <article class="stat-card"><span>كل الطلبات</span><strong id="report-orders">٠</strong></article>
+    <article class="stat-card"><span>الطلبات المكتملة</span><strong id="report-completed">٠</strong></article>
+    <article class="stat-card"><span>إجمالي المبيعات المكتملة</span><strong id="report-sales">٠ د.ع</strong></article>
+   </div>
+   <div class="panel"><h2>ملخص النشاط</h2><p id="report-summary" class="small-note">ستظهر الإحصاءات بعد وصول الطلبات.</p></div>
+  </section>
+  <section id="page-messages" class="admin-page-section hidden">
+   <div class="panel empty-state"><div class="empty-state-icon">✉</div><h2>الرسائل</h2><p>قسم الرسائل موجود في القائمة. لا يوجد حالياً مصدر رسائل مربوط بالموقع؛ لن تظهر رسائل حتى نضيف نموذج تواصل ونربطه بقاعدة البيانات.</p></div>
+  </section>
+  <section id="page-settings" class="admin-page-section hidden">
+   <div class="panel"><h2>إعدادات الموقع</h2><p class="small-note">بيانات المطعم التي تظهر للزبائن.</p>
+    <form id="settings-form">
+     <label class="field field-spaced">عبارة الترحيب<input id="setting-welcome" maxlength="200"></label>
+     <label class="field field-spaced">وصف المطعم<textarea id="setting-description" maxlength="1000"></textarea></label>
+     <div class="field-grid">
+      <label class="field">رقم الهاتف<input id="setting-phone" type="tel" maxlength="40"></label>
+      <label class="field">رقم واتساب<input id="setting-whatsapp" type="tel" maxlength="40"></label>
+     </div>
+     <div class="ordering-setting"><div><strong>استقبال الطلبات الإلكترونية</strong><p>عند التفعيل يستطيع الزبائن إرسال طلباتهم إلى لوحة الإدارة.</p></div><label class="switch"><input id="setting-ordering" type="checkbox"><span></span></label></div>
+     <p class="warning-note">تنبيه: أسعار المنيو الحالية تجريبية. لا تفعّل الطلبات قبل اعتماد الأسعار الحقيقية وتجربة استلام الطلب.</p>
+     <button class="solid-btn" type="submit">حفظ الإعدادات</button><p id="settings-msg" class="status-msg" role="status"></p>
+    </form>
+   </div>
+  </section>
+  <section id="page-password" class="admin-page-section hidden">
+   <div class="panel password-panel"><h2>تغيير كلمة المرور</h2><p class="small-note">اختر كلمة مرور قوية لا تقل عن 8 أحرف.</p>
+    <form id="password-form"><label class="field field-spaced">كلمة المرور الجديدة<input id="new-password" type="password" minlength="8" autocomplete="new-password" required></label><label class="field field-spaced">تأكيد كلمة المرور<input id="confirm-password" type="password" minlength="8" autocomplete="new-password" required></label><button class="solid-btn" type="submit">تحديث كلمة المرور</button><p id="password-msg" class="status-msg" role="status"></p></form>
+   </div>
+  </section>
+ </main>
+</div>
 <script type="module" src="admin.js"></script>
 </body></html>
