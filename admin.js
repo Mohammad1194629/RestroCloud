@@ -17,6 +17,7 @@ function showPage(name){
  const titles={home:"الرئيسية",products:"إدارة القائمة",orders:"الطلبات",reports:"التقارير",messages:"الرسائل",settings:"إعدادات الموقع",password:"تغيير كلمة المرور"};
  $("#page-title").textContent=titles[name]||"لوحة الإدارة";
  if(name==="orders")loadOrders();
+ if(name==="messages")loadMessages();
  if(name==="products")loadCategoryManager();
  if(name==="reports"||name==="home")loadOverview();
  if(name==="settings")loadSettings();
@@ -184,6 +185,28 @@ async function loadOrders(){
  lastOrders.forEach(o=>box.append(createOrderCard(o,tableMap)));
  lastOrders.slice(0,5).forEach(o=>recent.append(createOrderCard(o,tableMap)));
 }
+async function loadMessages(){
+ const box=$("#messages-list");if(!box)return;
+ const {data,error}=await supabase.from("contact_messages").select("id,name,phone,message,is_read,created_at").eq("restaurant_id",RESTAURANT_ID).order("created_at",{ascending:false}).limit(100);
+ if(error){box.textContent="تعذر تحميل الرسائل: "+error.message;return;}
+ const rows=data||[];const unread=rows.filter(x=>!x.is_read).length;$("#messages-badge").textContent=digits(unread);box.innerHTML="";
+ if(!rows.length){box.textContent="لا توجد رسائل حتى الآن.";return;}
+ rows.forEach(m=>{
+  const card=document.createElement("article");card.className="message-card"+(m.is_read?"":" unread");
+  const head=document.createElement("div");head.className="message-head";
+  const name=document.createElement("strong");name.textContent=m.name;
+  const date=document.createElement("small");date.textContent=new Date(m.created_at).toLocaleString("ar-IQ");
+  head.append(name,date);
+  const phone=document.createElement("p");phone.className="message-phone";phone.textContent=m.phone||"لم يذكر رقم هاتف";
+  const body=document.createElement("p");body.className="message-body";body.textContent=m.message;
+  const actions=document.createElement("div");actions.className="message-actions";
+  const read=document.createElement("button");read.type="button";read.className="outline-btn small-action";read.textContent=m.is_read?"وضع كغير مقروءة":"تحديد كمقروءة";
+  read.onclick=async()=>{const {error}=await supabase.from("contact_messages").update({is_read:!m.is_read}).eq("id",m.id).eq("restaurant_id",RESTAURANT_ID);if(error){msg($("#messages-list"),error.message,true);return;}await loadMessages();};
+  const del=document.createElement("button");del.type="button";del.className="delete-btn small-action";del.textContent="حذف";
+  del.onclick=async()=>{if(!confirm("هل تريد حذف هذه الرسالة؟"))return;const {error}=await supabase.from("contact_messages").delete().eq("id",m.id).eq("restaurant_id",RESTAURANT_ID);if(error){msg($("#messages-list"),error.message,true);return;}await loadMessages();};
+  actions.append(read,del);card.append(head,phone,body,actions);box.append(card);
+ });
+}
 async function loadOverview(){
  const [pRes,oRes]=await Promise.all([
   supabase.from("products").select("id",{count:"exact",head:true}).eq("restaurant_id",RESTAURANT_ID),
@@ -230,6 +253,7 @@ setInterval(()=>{if(!dashboard.classList.contains("hidden"))loadOrders();},30000
 });
 $("#logout").addEventListener("click",async()=>{await supabase.auth.signOut();loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");});
 $("#refresh-orders").addEventListener("click",loadOrders);
+$("#refresh-messages").addEventListener("click",loadMessages);
 document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
 loadDashboard();
