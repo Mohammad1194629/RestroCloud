@@ -58,7 +58,7 @@ function renderProducts(){
 }
 async function loadMenu(){
   const {data:cats,error:catError}=await supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order");
-  if(catError){notice.textContent="تعذر تحميل الأقسام. تحقق من اتصال قاعدة البيانات وسياسات القراءة.";return;}
+  if(catError){notice.textContent="تعذر تحميل الأقسام: "+catError.message;return;}
   const {data:items,error:itemError}=await supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order");
   if(itemError){notice.textContent="تعذر تحميل المنتجات. حاول مرة أخرى لاحقاً.";return;}
   products=items||[];
