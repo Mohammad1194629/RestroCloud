@@ -4,7 +4,7 @@ const RESTAURANT_ID="9c9143d1-27cf-41ac-ad6b-cc67ca08dd69",BUCKET="restaurant-pr
 const $=s=>document.querySelector(s);
 const loginPanel=$("#login-panel"),dashboard=$("#dashboard"),loginMsg=$("#login-msg"),productMsg=$("#product-msg");
 const fileInput=$("#product-image-file"),urlInput=$("#product-image"),preview=$("#image-preview"),saveButton=$("#save-product");
-let categories=[],products=[],lastOrders=[],editingImageUrl=null;
+let categories=[],products=[],lastOrders=[],editingImageUrl=null,allCategories=[];
 const money=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0))+" د.ع";
 const digits=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0));
 const statusNames={pending:"قيد الانتظار",accepted:"تم القبول",preparing:"قيد التحضير",ready:"جاهز",completed:"مكتمل",cancelled:"ملغي"};
@@ -17,6 +17,7 @@ function showPage(name){
  const titles={home:"الرئيسية",products:"إدارة القائمة",orders:"الطلبات",reports:"التقارير",messages:"الرسائل",settings:"إعدادات الموقع",password:"تغيير كلمة المرور"};
  $("#page-title").textContent=titles[name]||"لوحة الإدارة";
  if(name==="orders")loadOrders();
+ if(name==="products")loadCategoryManager();
  if(name==="reports"||name==="home")loadOverview();
  if(name==="settings")loadSettings();
 }
@@ -30,7 +31,7 @@ async function loadDashboard(){
   msg(loginMsg,error?.message||"هذا الحساب غير مخوّل لإدارة المطعم.",true);return;
  }
  loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");
- await loadCategories();await loadProducts();await loadOrders();await loadSettings();await loadOverview();
+ await loadCategories();await loadProducts();await loadCategoryManager();await loadOrders();await loadSettings();await loadOverview();
 }
 async function loadCategories(){
  const {data,error}=await supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order");
@@ -68,6 +69,29 @@ function resetProductForm(){
  $("#product-form-title").textContent="إضافة منتج جديد";saveButton.textContent="إضافة المنتج";
  $("#cancel-edit").classList.add("hidden");$("#remove-image").checked=false;fileInput.value="";
 }
+async function loadCategoryManager(){
+ const box=$("#category-rows");if(!box)return;
+ const {data,error}=await supabase.from("categories").select("id,name,is_active,sort_order").eq("restaurant_id",RESTAURANT_ID).order("sort_order");
+ if(error){msg($("#category-msg"),"تعذر تحميل الأقسام: "+error.message,true);return;}
+ allCategories=data||[];box.innerHTML="";
+ allCategories.forEach(c=>{
+  const row=document.createElement("div");row.className="category-row";
+  const name=document.createElement("strong");name.textContent=c.name;
+  const state=document.createElement("span");state.textContent=c.is_active?"ظاهر للزبائن":"مخفي";
+  const toggle=document.createElement("button");toggle.type="button";toggle.className="outline-btn small-action";toggle.textContent=c.is_active?"إخفاء":"إظهار";
+  toggle.onclick=async()=>{const {error}=await supabase.from("categories").update({is_active:!c.is_active}).eq("id",c.id).eq("restaurant_id",RESTAURANT_ID);if(error){msg($("#category-msg"),error.message,true);return;}await loadCategories();await loadCategoryManager();msg($("#category-msg"),"تم تحديث القسم.");};
+  row.append(name,state,toggle);box.append(row);
+ });
+ if(!allCategories.length)box.textContent="لا توجد أقسام.";
+}
+$("#category-form").addEventListener("submit",async e=>{
+ e.preventDefault();const name=$("#category-name").value.trim();if(!name)return;
+ const button=$("#category-form button");button.disabled=true;
+ const {error}=await supabase.from("categories").insert({restaurant_id:RESTAURANT_ID,name,sort_order:allCategories.length,is_active:true});
+ button.disabled=false;
+ if(error){msg($("#category-msg"),"تعذر إضافة القسم: "+error.message,true);return;}
+ $("#category-name").value="";await loadCategories();await loadCategoryManager();msg($("#category-msg"),"تمت إضافة القسم.");
+});
 async function loadProducts(){
  const {data,error}=await supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).order("sort_order").order("created_at",{ascending:false});
  if(error){msg(productMsg,"تعذر تحميل المنتجات: "+error.message,true);return;}
@@ -175,17 +199,17 @@ async function loadOverview(){
  $("#report-summary").textContent="الطلبات المكتملة: "+digits(completed.length)+"، الطلبات غير المكتملة أو الملغاة: "+digits(orders.length-completed.length)+"، قيمة المبيعات المكتملة: "+money(sales)+".";
 }
 async function loadSettings(){
- const {data,error}=await supabase.from("restaurant_settings").select("welcome_text,description,phone,whatsapp_number,ordering_enabled").eq("restaurant_id",RESTAURANT_ID).maybeSingle();
+ const {data,error}=await supabase.from("restaurant_settings").select("welcome_text,description,phone,whatsapp_number,ordering_enabled,cover_url").eq("restaurant_id",RESTAURANT_ID).maybeSingle();
  if(error){msg($("#settings-msg"),error.message,true);return;}
  if(!data)return;
  $("#setting-welcome").value=data.welcome_text||"";$("#setting-description").value=data.description||"";
- $("#setting-phone").value=data.phone||"";$("#setting-whatsapp").value=data.whatsapp_number||"";
+ $("#setting-phone").value=data.phone||"";$("#setting-whatsapp").value=data.whatsapp_number||"";$("#setting-cover").value=data.cover_url||"";
  $("#setting-ordering").checked=!!data.ordering_enabled;
 }
 $("#settings-form").addEventListener("submit",async e=>{
  e.preventDefault();const enabled=$("#setting-ordering").checked;
  if(enabled&&!confirm("تنبيه: الأسعار الحالية تجريبية. هل تأكدت من اعتماد الأسعار الحقيقية واختبار الطلبات؟"))return;
- const payload={welcome_text:$("#setting-welcome").value.trim()||null,description:$("#setting-description").value.trim()||null,phone:$("#setting-phone").value.trim()||null,whatsapp_number:$("#setting-whatsapp").value.trim()||null,ordering_enabled:enabled};
+ const payload={welcome_text:$("#setting-welcome").value.trim()||null,description:$("#setting-description").value.trim()||null,phone:$("#setting-phone").value.trim()||null,whatsapp_number:$("#setting-whatsapp").value.trim()||null,cover_url:$("#setting-cover").value.trim()||null,ordering_enabled:enabled};
  const {error}=await supabase.from("restaurant_settings").update(payload).eq("restaurant_id",RESTAURANT_ID);
  if(error)msg($("#settings-msg"),"تعذر حفظ الإعدادات: "+error.message,true);
  else msg($("#settings-msg"),"تم حفظ إعدادات الموقع.");
