@@ -10,7 +10,7 @@ const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
 function saveCart(){try{localStorage.setItem("restrocloud-cart",JSON.stringify([...cart.values()].map(i=>({id:i.id,quantity:i.quantity}))));}catch{}}
-function restoreCart(){try{const saved=JSON.parse(localStorage.getItem("restrocloud-cart")||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),quantity:q});});}catch{}}
+function restoreCart(){try{const saved=JSON.parse(localStorage.getItem("restrocloud-cart")||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),image_url:p.image_url||null,quantity:q});});}catch{}}
 let favorites=new Set();
 try{favorites=new Set(JSON.parse(localStorage.getItem("restrocloud-favorites")||"[]"));}catch{favorites=new Set();}
 const money=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0))+" د.ع";
@@ -18,13 +18,14 @@ function renderCart(){
  const qty=[...cart.values()].reduce((s,i)=>s+i.quantity,0);
  const total=[...cart.values()].reduce((s,i)=>s+i.price*i.quantity,0);
  cartCount.textContent="السلة "+new Intl.NumberFormat("ar-IQ").format(qty);
- $("#cart-panel").classList.toggle("cart-panel-visible",qty>0);
+ $("#header-cart-count").textContent=new Intl.NumberFormat("ar-IQ").format(qty);
  cartSummary.textContent=qty?qty+" صنف · المجموع "+money(total):"لم تضف أي صنف بعد.";
  $("#checkout-total").textContent=money(total);
  cartItems.innerHTML="";saveCart();
  if(!qty){cartItems.innerHTML='<p class="empty-cart">السلة فارغة. أضف الأصناف التي تريدها من القائمة.</p>';return;}
  cart.forEach(item=>{
   const row=document.createElement("div");row.className="cart-item-row";
+  const thumb=document.createElement("div");thumb.className="cart-item-thumb";if(item.image_url){const image=document.createElement("img");image.src=item.image_url;image.alt=item.name;image.loading="lazy";image.onerror=()=>{thumb.textContent="🍽️";};thumb.append(image);}else{thumb.textContent="🍽️";}
   const info=document.createElement("div");info.className="cart-item-info";
   const name=document.createElement("strong");name.textContent=item.name;
   const sub=document.createElement("small");sub.textContent=money(item.price)+" للواحد";
@@ -37,7 +38,7 @@ function renderCart(){
   plus.onclick=()=>changeQty(item.id,1);
   controls.append(minus,count,plus);
   const line=document.createElement("strong");line.className="cart-line-total";line.textContent=money(item.price*item.quantity);
-  row.append(info,controls,line);cartItems.append(row);
+  row.append(thumb,info,controls,line);cartItems.append(row);
  });
 }
 function changeQty(id,delta){const item=cart.get(id);if(!item)return;item.quantity+=delta;if(item.quantity<1)cart.delete(id);else cart.set(id,item);renderCart();}
@@ -68,7 +69,7 @@ function renderProducts(){
   const bottom=document.createElement("div");bottom.className="product-bottom";
   const price=document.createElement("span");price.className="price";price.textContent=money(p.price);
   const add=document.createElement("button");add.className="add-btn";add.type="button";add.textContent="أضف للسلة";
-  add.onclick=()=>{const item=cart.get(p.id)||{id:p.id,name:p.name,price:Number(p.price),quantity:0};item.quantity++;cart.set(p.id,item);renderCart();add.textContent="أضيف";setTimeout(()=>add.textContent="أضف للسلة",800);};
+  add.onclick=()=>{const item=cart.get(p.id)||{id:p.id,name:p.name,price:Number(p.price),image_url:p.image_url||null,quantity:0};item.quantity++;cart.set(p.id,item);renderCart();openCartDrawer();add.textContent="أضيف";setTimeout(()=>add.textContent="أضف للسلة",800);};
   bottom.append(price,add);body.append(titleRow,desc,bottom);card.append(image,body);productsEl.append(card);
  });
 }
@@ -91,7 +92,7 @@ async function loadMenu(){
  const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
   supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order"),
   supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order"),
-  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
+  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone,logo_url,address,reservation_phone,opening_time,closing_time,map_url").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
   supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number")
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
@@ -107,26 +108,40 @@ async function loadMenu(){
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
  if(settingRes.data?.cover_url){const cover=settingRes.data.cover_url.trim();if(cover.startsWith("https://"))document.querySelector(".hero").style.backgroundImage="linear-gradient(110deg,rgba(26,20,16,.84),rgba(26,20,16,.62)),url("+cover+")";}
- if(settingRes.data?.phone)$("#footer-phone").textContent="للتواصل: "+settingRes.data.phone;
+ if(settingRes.data){
+  const booking=settingRes.data.reservation_phone||settingRes.data.phone;
+  $("#footer-phone").textContent=booking||"لم يُحدد بعد";
+  $("#footer-address").textContent=settingRes.data.address||"لم يُحدد بعد";
+  const opening=(settingRes.data.opening_time||"").slice(0,5),closing=(settingRes.data.closing_time||"").slice(0,5);
+  $("#footer-hours").textContent=opening&&closing?opening+" – "+closing+" يومياً":"لم تُحدد أوقات العمل";
+  if(settingRes.data.map_url&&/^https:\/\//i.test(settingRes.data.map_url)){const map=$("#footer-map");map.href=settingRes.data.map_url;map.classList.remove("hidden");$("#footer-map-empty").classList.add("hidden");}
+  if(settingRes.data.logo_url&&/^https:\/\//i.test(settingRes.data.logo_url)){const logo=document.querySelector(".cart-sheet-brand .brand-mark");logo.innerHTML="";const img=document.createElement("img");img.src=settingRes.data.logo_url;img.alt="شعار مطعم القلعة";logo.append(img);}
+ }
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
  const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر رقم الطاولة</option>';
- tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);tableSelect.append(opt);});
+ const serviceTable=$("#service-table-id");serviceTable.innerHTML='<option value="">اختر رقم الطاولة</option>';
+ tables.forEach(t=>{const label=t.label||("طاولة "+t.table_number);const opt=document.createElement("option");opt.value=t.id;opt.textContent=label;tableSelect.append(opt);const serviceOpt=document.createElement("option");serviceOpt.value=t.id;serviceOpt.textContent=label;serviceTable.append(serviceOpt);});
  tableSelect.disabled=tables.length===0;
  updateOrderFields();
  if(!tables.length && $("#order-type").value==="dine_in" && orderingEnabled){
   checkoutMessage.textContent="لا توجد طاولات متاحة للاختيار حالياً. اختر التوصيل أو الاستلام.";
  }
- const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
+ const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;serviceTable.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
  if(!products.length){notice.textContent="المنيو قيد التجهيز. ستظهر الأصناف هنا بعد إضافتها.";return;}
  if(!tableLoadFailed)notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
 }
 $("#order-type").addEventListener("change",updateOrderFields);
 $("#menu-search").addEventListener("input",e=>{searchTerm=e.target.value.trim().toLocaleLowerCase("ar");renderProducts();});
 $("#favorites-toggle").addEventListener("click",()=>{showFavorites=!showFavorites;$("#favorites-toggle").classList.toggle("active",showFavorites);$("#favorites-toggle").setAttribute("aria-pressed",String(showFavorites));$("#favorites-toggle").textContent=showFavorites?"♥ عرض الكل":"♡ المفضلة";renderProducts();});
-$("#checkout-open").addEventListener("click",()=>{checkoutPanel.classList.remove("hidden");checkoutPanel.scrollIntoView({behavior:"smooth",block:"start"});});
-$("#checkout-close").addEventListener("click",()=>checkoutPanel.classList.add("hidden"));
+function openCartDrawer(){checkoutPanel.classList.remove("hidden");document.body.classList.add("drawer-open");}
+function closeCartDrawer(){checkoutPanel.classList.add("hidden");document.body.classList.remove("drawer-open");}
+$("#header-cart").addEventListener("click",openCartDrawer);
+checkoutPanel.addEventListener("click",e=>{if(e.target===checkoutPanel)closeCartDrawer();});
+$("#site-menu-toggle").addEventListener("click",()=>{const menu=$("#site-menu"),open=menu.classList.contains("hidden");menu.classList.toggle("hidden",!open);$("#site-menu-toggle").setAttribute("aria-expanded",String(open));});
+document.addEventListener("click",e=>{if(!e.target.closest(".site-menu-wrap")){$("#site-menu").classList.add("hidden");$("#site-menu-toggle").setAttribute("aria-expanded","false");}});
+$("#checkout-close").addEventListener("click",closeCartDrawer);
 $("#cart-clear").addEventListener("click",()=>{cart.clear();renderCart();});
 $("#checkout-form").addEventListener("submit",async e=>{
  e.preventDefault();
@@ -172,6 +187,15 @@ $("#checkout-form").addEventListener("submit",async e=>{
  }
 });
 function deliveryAddressOrNull(type,address){return type==="delivery"?address:null;}
+document.querySelectorAll("[data-service]").forEach(button=>button.addEventListener("click",async()=>{
+ const tableId=$("#service-table-id").value,status=$("#service-request-status");
+ if(!tableId){status.textContent="اختر رقم الطاولة أولاً.";$("#service-table-id").focus();return;}
+ const labels={captain:"طلب كابتن",cleaning:"طلب تنظيف",bill:"طلب الفاتورة"};
+ button.disabled=true;status.textContent="جارٍ إرسال "+labels[button.dataset.service]+"...";
+ const {error}=await supabase.from("table_service_requests").insert({restaurant_id:RESTAURANT_ID,table_id:tableId,request_type:button.dataset.service});
+ button.disabled=false;
+ status.textContent=error?"تعذر إرسال الطلب: "+error.message:"تم إرسال "+labels[button.dataset.service]+" إلى فريق المطعم.";
+}));
 $("#contact-form").addEventListener("submit",async e=>{
  e.preventDefault();
  const button=e.target.querySelector("button[type=submit]");
