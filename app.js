@@ -134,4 +134,16 @@ $("#checkout-form").addEventListener("submit",async e=>{
  }catch(err){checkoutMessage.textContent="تعذر إرسال الطلب: "+(err.message||"حدث خطأ غير متوقع");}
  finally{submit.disabled=!orderingEnabled;}
 });
+$("#contact-form").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const button=e.target.querySelector("button[type=submit]");
+ const status=$("#contact-status");
+ const payload={restaurant_id:RESTAURANT_ID,name:$("#contact-name").value.trim(),phone:$("#contact-phone").value.trim()||null,message:$("#contact-message").value.trim()};
+ if(payload.name.length<2||payload.message.length<2){status.textContent="يرجى كتابة الاسم والرسالة بشكل صحيح.";return;}
+ button.disabled=true;status.textContent="جارٍ إرسال رسالتك...";
+ const {error}=await supabase.from("contact_messages").insert(payload);
+ button.disabled=false;
+ if(error){status.textContent="تعذر إرسال الرسالة حالياً: "+error.message;return;}
+ e.target.reset();status.textContent="وصلت رسالتك إلى إدارة المطعم، شكراً لتواصلك.";
+});
 updateOrderFields();renderCart();loadMenu();
