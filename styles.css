@@ -187,3 +187,7 @@ footer small{font-size:10px;color:#ffffff70}
  .category-form{flex-direction:column}
  .category-row{gap:7px}
 }
+
+
+.image-fallback{display:flex;align-items:center;justify-content:center;font-size:38px;color:#b9a99b;background:linear-gradient(135deg,#f7f0e8,#e9ddd0)}
+.category-manager-panel{margin-top:18px}
