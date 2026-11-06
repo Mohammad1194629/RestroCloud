@@ -13,7 +13,7 @@
 </head>
 <body>
   <header class="hero">
-    <nav class="topbar"><span class="brand-mark">ق</span><div class="top-actions"><button id="header-cart" class="header-icon-btn" type="button" aria-label="فتح السلة">🛒 <b id="header-cart-count">٠</b></button><div class="site-menu-wrap"><button id="site-menu-toggle" class="header-icon-btn menu-toggle" type="button" aria-label="القائمة" aria-expanded="false">☰</button><div id="site-menu" class="site-menu hidden"><a href="admin.html">لوحة المدير</a></div></div></div></nav>
+    <nav class="topbar"><span class="brand-mark">ق</span><a class="admin-link" href="admin.html">دخول الإدارة</a></nav>
     <div class="hero-copy">
       <span class="hero-kicker" id="welcome-text">أهلاً وسهلاً بكم</span>
       <h1>مطعم القلعة</h1>
@@ -34,10 +34,13 @@
     <div id="notice" class="notice">جارٍ تحميل قائمة الطعام...</div>
     <div id="category-list" class="category-list" aria-label="أقسام الطعام"></div>
     <section id="product-grid" class="product-grid"></section>
-    <section id="checkout-panel" class="cart-overlay hidden" aria-modal="true" role="dialog" aria-label="سلة الطلب">
-      <div class="cart-sheet">
-      <div class="cart-sheet-brand"><span class="brand-mark">ق</span><strong>مطعم القلعة تلعفر</strong><small>سلة طلبك</small></div>
-      <div class="checkout-head"><div><span class="eyebrow dark">مراجعة الطلب</span><h2>تفاصيل السلة</h2><p id="cart-summary">لم تضف أي صنف بعد.</p></div><div class="cart-head-actions"><button id="cart-clear" class="quiet-btn" type="button">إفراغ السلة</button><button id="checkout-close" class="danger-btn" type="button">إغلاق</button></div></div>
+    <section class="cart-panel" id="cart-panel">
+      <div class="cart-panel-copy"><h3>سلة طلبك</h3><p id="cart-summary">لم تضف أي صنف بعد.</p></div>
+      <button id="checkout-open" class="cart-checkout-btn" type="button">عرض السلة وإكمال الطلب</button>
+      <button id="cart-clear" class="quiet-btn" type="button">إفراغ السلة</button>
+    </section>
+    <section id="checkout-panel" class="checkout-panel hidden">
+      <div class="checkout-head"><div><span class="eyebrow dark">إتمام الطلب</span><h2>راجع طلبك</h2></div><button id="checkout-close" class="danger-btn" type="button">إغلاق</button></div>
       <div id="cart-items" class="cart-items"></div>
       <div class="checkout-total">المجموع: <strong id="checkout-total">٠ د.ع</strong></div>
       <form id="checkout-form">
@@ -61,13 +64,8 @@
         <button id="checkout-submit" class="solid-btn checkout-submit" type="submit">إرسال الطلب إلى المطعم</button>
         <p id="ordering-disabled-note" class="small-note">استقبال الطلبات غير مفعّل حالياً. القائمة والأسعار تجريبية.</p>
       </form>
-      </div>
     </section>
   </main>
-    <section id="table-services" class="table-services-section">
-      <div class="contact-copy"><span class="eyebrow dark">خدمة الطاولات</span><h2>طلبات الطاولة</h2><p>اختر رقم طاولتك ثم أرسل طلب الخدمة الذي تحتاجه.</p></div>
-      <div class="service-request-box"><label class="field">رقم الطاولة<select id="service-table-id"><option value="">اختر رقم الطاولة</option></select></label><div class="service-actions"><button type="button" class="service-btn" data-service="captain">🔔 طلب كابتن</button><button type="button" class="service-btn" data-service="cleaning">🧹 طلب تنظيف</button><button type="button" class="service-btn" data-service="bill">🧾 طلب الفاتورة</button></div><p id="service-request-status" class="status-msg" role="status"></p></div>
-    </section>
     <section id="contact" class="contact-section">
       <div class="contact-copy"><span class="eyebrow dark">تواصل معنا</span><h2>يسعدنا سماع رأيك</h2><p>أرسل استفسارك أو ملاحظتك إلى إدارة المطعم.</p></div>
       <form id="contact-form" class="contact-form">
@@ -78,7 +76,7 @@
         <p id="contact-status" class="status-msg" role="status"></p>
       </form>
     </section>
-  <footer class="site-footer"><div class="footer-brand"><span class="brand-mark">ق</span><strong>مطعم القلعة تلعفر</strong></div><div id="footer-details" class="footer-details"><div class="footer-detail"><b>رقم الحجز</b><span id="footer-phone">—</span></div><div class="footer-detail"><b>العنوان</b><span id="footer-address">—</span></div><div class="footer-detail"><b>أوقات العمل</b><span id="footer-hours">—</span></div><div class="footer-detail"><b>موقع المطعم</b><a id="footer-map" class="hidden" target="_blank" rel="noopener">عرض الخريطة</a><span id="footer-map-empty">سيُضاف رابط الخريطة</span></div></div><small>قائمة الطعام الإلكترونية · مطعم القلعة تلعفر</small></footer>
+  <footer><strong>مطعم القلعة تلعفر</strong><span id="footer-phone"></span><small>قائمة الطعام الإلكترونية · الأسعار والمنتجات المعروضة تجريبية لحين اعتماد إدارة المطعم</small></footer>
   <script type="module" src="app.js"></script>
 </body>
 </html>
