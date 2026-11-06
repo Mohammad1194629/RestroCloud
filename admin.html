@@ -9,7 +9,7 @@
 <body class="admin-page">
 <section id="login-panel" class="login-screen">
  <div class="login-card">
-  <div class="admin-brand-mark">م</div><p class="eyebrow dark">مذاق الشرق</p><h1>لوحة الإدارة</h1><p>مطعم القلعة تلعفر</p>
+  <div class="admin-brand-mark">ق</div><p class="eyebrow dark">مطعم القلعة</p><h1>لوحة الإدارة</h1><p>مطعم القلعة تلعفر</p>
   <form id="login-form">
    <label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label>
    <label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label>
@@ -20,7 +20,7 @@
 </section>
 <div id="dashboard" class="admin-layout hidden">
  <aside class="admin-sidebar">
-  <div class="sidebar-brand"><span class="sidebar-logo">م</span><div><strong>مذاق الشرق</strong><small>لوحة الإدارة</small></div></div>
+  <div class="sidebar-brand"><span class="sidebar-logo">ق</span><div><strong>مطعم القلعة</strong><small>لوحة الإدارة</small></div></div>
   <div class="sidebar-restaurant">مطعم القلعة تلعفر</div>
   <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
    <button class="nav-item active" data-page="home"><span>⌂</span> الرئيسية</button>
@@ -66,6 +66,8 @@
    </div>
    <div class="panel"><div class="section-heading"><div><h2>إدارة المنتجات</h2><p>تعديل المنتج أو إخفاؤه أو حذفه</p></div><span id="product-count" class="count-pill">٠ منتج</span></div><div class="table-wrap"><table><thead><tr><th>الصورة</th><th>المنتج</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody id="product-rows"></tbody></table></div></div>
   </section>
+  <div class="panel category-manager-panel"><div class="section-heading"><div><h2>إدارة الأقسام</h2><p>أضف قسماً جديداً أو أوقف ظهوره مؤقتاً.</p></div></div><form id="category-form" class="category-form"><input id="category-name" maxlength="100" placeholder="اسم القسم الجديد" required><button class="solid-btn" type="submit">إضافة قسم</button></form><div id="category-rows" class="category-rows"></div><p id="category-msg" class="status-msg" role="status"></p></div>
+  </section>
   <section id="page-orders" class="admin-page-section hidden">
    <div class="panel"><div class="section-heading"><div><h2>الطلبات الواردة</h2><p>متابعة حالة كل طلب وتفاصيله</p></div><button id="refresh-orders" class="outline-btn">تحديث</button></div><div id="orders-list" class="orders-list"><p class="small-note">جارٍ تحميل الطلبات...</p></div></div>
   </section>
@@ -86,6 +88,7 @@
     <form id="settings-form">
      <label class="field field-spaced">عبارة الترحيب<input id="setting-welcome" maxlength="200"></label>
      <label class="field field-spaced">وصف المطعم<textarea id="setting-description" maxlength="1000"></textarea></label>
+     <label class="field field-spaced">رابط صورة الغلاف (اختياري)<input id="setting-cover" type="url" placeholder="https://..."></label>
      <div class="field-grid">
       <label class="field">رقم الهاتف<input id="setting-phone" type="tel" maxlength="40"></label>
       <label class="field">رقم واتساب<input id="setting-whatsapp" type="tel" maxlength="40"></label>
