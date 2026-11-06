@@ -14,10 +14,9 @@ function showPage(name){
  document.querySelectorAll(".admin-page-section").forEach(s=>s.classList.add("hidden"));
  $("#page-"+name)?.classList.remove("hidden");
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
- const titles={home:"الرئيسية",products:"إدارة القائمة",orders:"الطلبات",services:"طلبات الطاولات",reports:"التقارير",messages:"الرسائل",settings:"إعدادات الموقع",password:"تغيير كلمة المرور"};
+ const titles={home:"الرئيسية",products:"إدارة القائمة",orders:"الطلبات",reports:"التقارير",messages:"الرسائل",settings:"إعدادات الموقع",password:"تغيير كلمة المرور"};
  $("#page-title").textContent=titles[name]||"لوحة الإدارة";
  if(name==="orders")loadOrders();
- if(name==="services")loadServiceRequests();
  if(name==="messages")loadMessages();
  if(name==="products")loadCategoryManager();
  if(name==="reports"||name==="home")loadOverview();
@@ -33,7 +32,7 @@ async function loadDashboard(){
   msg(loginMsg,error?.message||"هذا الحساب غير مخوّل لإدارة المطعم.",true);return;
  }
  loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");
- await loadCategories();await loadProducts();await loadCategoryManager();await loadOrders();await loadServiceRequests();await loadSettings();await loadOverview();
+ await loadCategories();await loadProducts();await loadCategoryManager();await loadOrders();await loadSettings();await loadOverview();
 }
 async function loadCategories(){
  const {data,error}=await supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order");
@@ -186,30 +185,6 @@ async function loadOrders(){
  lastOrders.forEach(o=>box.append(createOrderCard(o,tableMap)));
  lastOrders.slice(0,5).forEach(o=>recent.append(createOrderCard(o,tableMap)));
 }
-async function loadServiceRequests(){
- const box=$("#service-requests-list");if(!box)return;
- const [requestRes,tableRes]=await Promise.all([
-  supabase.from("table_service_requests").select("id,table_id,request_type,status,created_at").eq("restaurant_id",RESTAURANT_ID).order("created_at",{ascending:false}).limit(100),
-  supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID)
- ]);
- if(requestRes.error){box.textContent="تعذر تحميل طلبات الطاولات: "+requestRes.error.message;return;}
- const tableMap=new Map((tableRes.data||[]).map(t=>[t.id,t.label||"طاولة "+t.table_number]));
- const rows=requestRes.data||[],pending=rows.filter(x=>x.status==="pending").length;
- $("#services-badge").textContent=digits(pending);box.innerHTML="";
- if(!rows.length){box.textContent="لا توجد طلبات خدمة حتى الآن.";return;}
- const names={captain:"طلب كابتن",cleaning:"طلب تنظيف",bill:"طلب الفاتورة"};
- rows.forEach(item=>{
-  const card=document.createElement("article");card.className="order-card";
-  const head=document.createElement("div");head.className="order-card-head";
-  const title=document.createElement("strong");title.textContent=names[item.request_type]||item.request_type;
-  const date=document.createElement("small");date.textContent=new Date(item.created_at).toLocaleString("ar-IQ");head.append(title,date);
-  const meta=document.createElement("p");meta.className="order-meta";meta.textContent=tableMap.get(item.table_id)||"طاولة غير معروفة";
-  const select=document.createElement("select");select.className="status-select";
-  [["pending","قيد الانتظار"],["completed","تم التنفيذ"],["cancelled","ملغي"]].forEach(([value,label])=>{const o=document.createElement("option");o.value=value;o.textContent=label;select.append(o);});
-  select.value=item.status;select.onchange=async()=>{select.disabled=true;const next=select.value;const {error}=await supabase.from("table_service_requests").update({status:next,completed_at:next==="completed"?new Date().toISOString():null}).eq("id",item.id).eq("restaurant_id",RESTAURANT_ID);if(error){msg(box,"تعذر تحديث حالة الطلب: "+error.message,true);select.value=item.status;}else await loadServiceRequests();select.disabled=false;};
-  const foot=document.createElement("div");foot.className="order-card-foot";const statusText=document.createElement("span");statusText.className="small-note";statusText.textContent="حالة الطلب";foot.append(statusText,select);card.append(head,meta,foot);box.append(card);
- });
-}
 async function loadMessages(){
  const box=$("#messages-list");if(!box)return;
  const {data,error}=await supabase.from("contact_messages").select("id,name,phone,message,is_read,created_at").eq("restaurant_id",RESTAURANT_ID).order("created_at",{ascending:false}).limit(100);
@@ -247,20 +222,17 @@ async function loadOverview(){
  $("#report-summary").textContent="الطلبات المكتملة: "+digits(completed.length)+"، الطلبات غير المكتملة أو الملغاة: "+digits(orders.length-completed.length)+"، قيمة المبيعات المكتملة: "+money(sales)+".";
 }
 async function loadSettings(){
- const {data,error}=await supabase.from("restaurant_settings").select("welcome_text,description,phone,whatsapp_number,ordering_enabled,cover_url,logo_url,address,reservation_phone,opening_time,closing_time,map_url").eq("restaurant_id",RESTAURANT_ID).maybeSingle();
+ const {data,error}=await supabase.from("restaurant_settings").select("welcome_text,description,phone,whatsapp_number,ordering_enabled,cover_url").eq("restaurant_id",RESTAURANT_ID).maybeSingle();
  if(error){msg($("#settings-msg"),error.message,true);return;}
  if(!data)return;
  $("#setting-welcome").value=data.welcome_text||"";$("#setting-description").value=data.description||"";
  $("#setting-phone").value=data.phone||"";$("#setting-whatsapp").value=data.whatsapp_number||"";$("#setting-cover").value=data.cover_url||"";
- $("#setting-reservation-phone").value=data.reservation_phone||"";$("#setting-address").value=data.address||"";
- $("#setting-opening-time").value=(data.opening_time||"").slice(0,5);$("#setting-closing-time").value=(data.closing_time||"").slice(0,5);
- $("#setting-map").value=data.map_url||"";$("#setting-logo").value=data.logo_url||"";
  $("#setting-ordering").checked=!!data.ordering_enabled;
 }
 $("#settings-form").addEventListener("submit",async e=>{
  e.preventDefault();const enabled=$("#setting-ordering").checked;
  if(enabled&&!confirm("تنبيه: الأسعار الحالية تجريبية. هل تأكدت من اعتماد الأسعار الحقيقية واختبار الطلبات؟"))return;
- const payload={welcome_text:$("#setting-welcome").value.trim()||null,description:$("#setting-description").value.trim()||null,phone:$("#setting-phone").value.trim()||null,whatsapp_number:$("#setting-whatsapp").value.trim()||null,cover_url:$("#setting-cover").value.trim()||null,ordering_enabled:enabled,reservation_phone:$("#setting-reservation-phone").value.trim()||null,address:$("#setting-address").value.trim()||null,opening_time:$("#setting-opening-time").value||null,closing_time:$("#setting-closing-time").value||null,map_url:$("#setting-map").value.trim()||null,logo_url:$("#setting-logo").value.trim()||null};
+ const payload={welcome_text:$("#setting-welcome").value.trim()||null,description:$("#setting-description").value.trim()||null,phone:$("#setting-phone").value.trim()||null,whatsapp_number:$("#setting-whatsapp").value.trim()||null,cover_url:$("#setting-cover").value.trim()||null,ordering_enabled:enabled};
  const {error}=await supabase.from("restaurant_settings").update(payload).eq("restaurant_id",RESTAURANT_ID);
  if(error)msg($("#settings-msg"),"تعذر حفظ الإعدادات: "+error.message,true);
  else msg($("#settings-msg"),"تم حفظ إعدادات الموقع.");
@@ -280,9 +252,8 @@ $("#login-form").addEventListener("submit",async e=>{
 });
 $("#logout").addEventListener("click",async()=>{await supabase.auth.signOut();loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");});
 $("#refresh-orders").addEventListener("click",loadOrders);
-$("#refresh-services").addEventListener("click",loadServiceRequests);
 $("#refresh-messages").addEventListener("click",loadMessages);
-setInterval(()=>{if(!dashboard.classList.contains("hidden")){loadOrders();loadServiceRequests();}},20000);
+setInterval(()=>{if(!dashboard.classList.contains("hidden"))loadOrders();},20000);
 document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
 loadDashboard();
