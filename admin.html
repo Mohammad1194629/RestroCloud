@@ -136,6 +136,14 @@
      <button class="solid-btn" type="submit">حفظ الإعدادات</button><p id="settings-msg" class="status-msg" role="status"></p>
     </form>
    </div>
+   <div class="panel"><div class="section-heading"><div><h2>إدارة الطاولات</h2><p>أضف أرقام الطاولات أو عدّلها أو أوقف استخدامها.</p></div></div>
+    <form id="table-admin-form"><input id="table-admin-id" type="hidden"><div class="field-grid">
+     <label class="field">رقم الطاولة<input id="table-admin-number" type="number" min="1" max="9999" required></label>
+     <label class="field">اسم أو وصف الطاولة<input id="table-admin-label" maxlength="80" placeholder="مثلاً: الصالة الخارجية"></label>
+     <label class="spicy-option"><input id="table-admin-active" type="checkbox" checked> الطاولة متاحة للزبائن</label>
+    </div><div class="form-actions"><button class="solid-btn" type="submit">حفظ الطاولة</button><button id="table-admin-reset" class="outline-btn" type="button">طاولة جديدة</button></div></form>
+    <div id="table-admin-rows" class="category-rows"></div><p id="table-admin-msg" class="status-msg" role="status"></p>
+   </div>
    <div class="panel"><div class="section-heading"><div><h2>إدارة أزرار خدمات الطاولة</h2><p>إضافة خدمة أو تعديل اسمها ورمزها أو إخفاؤها.</p></div></div>
     <form id="service-admin-form"><input id="service-admin-id" type="hidden">
      <div class="field-grid">
