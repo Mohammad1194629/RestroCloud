@@ -141,7 +141,7 @@
      <div class="field-grid">
       <label class="field">اسم الخدمة<input id="service-admin-title" maxlength="80" required></label>
       <label class="field">الرمز التعبيري<input id="service-admin-icon" maxlength="8" placeholder="🔔" required></label>
-      <label class="field">مفتاح الخدمة (إنجليزي)<input id="service-admin-key" maxlength="30" pattern="[a-z0-9_-]+" required></label>
+      <label class="field">مفتاح الخدمة (إنجليزي)<input id="service-admin-key" maxlength="30" pattern="[a-z][a-z0-9_-]{0,29}" required></label>
       <label class="spicy-option"><input id="service-admin-active" type="checkbox" checked> إظهار الخدمة للزبائن</label>
      </div><div class="form-actions"><button class="solid-btn" type="submit">حفظ الخدمة</button><button id="service-admin-reset" class="outline-btn" type="button">خدمة جديدة</button></div>
     </form><div id="service-admin-rows" class="category-rows"></div><p id="service-admin-msg" class="status-msg" role="status"></p>
