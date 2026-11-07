@@ -6,6 +6,8 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
 const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#cart-items");
+const cartView=$("#cart-view"),serviceView=$("#service-view");
+let activeService="captain";
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
@@ -18,6 +20,8 @@ function renderCart(){
  const qty=[...cart.values()].reduce((s,i)=>s+i.quantity,0);
  const total=[...cart.values()].reduce((s,i)=>s+i.price*i.quantity,0);
  cartCount.textContent="السلة "+new Intl.NumberFormat("ar-IQ").format(qty);
+ $("#header-cart-count").textContent=new Intl.NumberFormat("ar-IQ").format(qty);
+ $("#cart-preview").textContent=qty?[...cart.values()].slice(0,2).map(i=>i.name+" · "+money(i.price)).join(" | ")+(cart.size>2?" …":""):"سلتك فارغة";
  $("#cart-panel").classList.toggle("cart-panel-visible",qty>0);
  cartSummary.textContent=qty?qty+" صنف · المجموع "+money(total):"لم تضف أي صنف بعد.";
  $("#checkout-total").textContent=money(total);
@@ -91,7 +95,7 @@ async function loadMenu(){
  const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
   supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order"),
   supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order"),
-  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
+  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone,address,reservation_phone,opening_time,closing_time").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
   supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number")
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
@@ -108,26 +112,61 @@ async function loadMenu(){
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
  if(settingRes.data?.cover_url){const cover=settingRes.data.cover_url.trim();if(cover.startsWith("https://"))document.querySelector(".hero").style.backgroundImage="linear-gradient(110deg,rgba(26,20,16,.84),rgba(26,20,16,.62)),url("+cover+")";}
  if(settingRes.data?.phone)$("#footer-phone").textContent="للتواصل: "+settingRes.data.phone;
+  $("#restaurant-address").textContent=settingRes.data?.address||"تلعفر";
+  $("#reservation-phone").textContent=settingRes.data?.reservation_phone||settingRes.data?.phone||"يُحدّد من إدارة المطعم";
+  const open=settingRes.data?.opening_time,close=settingRes.data?.closing_time;
+  $("#working-hours").textContent=open&&close?String(open).slice(0,5)+" – "+String(close).slice(0,5):"يُحدّد من إدارة المطعم";
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
  const tableSelect=$("#table-id");tableSelect.innerHTML='<option value="">اختر رقم الطاولة</option>';
  tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);tableSelect.append(opt);});
+  const serviceTable=$("#service-table-id");serviceTable.innerHTML='<option value="">اختر الطاولة</option>';
+  tables.forEach(t=>{const opt=document.createElement("option");opt.value=t.id;opt.textContent=t.label||("طاولة "+t.table_number);serviceTable.append(opt);});
  tableSelect.disabled=tables.length===0;
  updateOrderFields();
  if(!tables.length && $("#order-type").value==="dine_in" && orderingEnabled){
   checkoutMessage.textContent="لا توجد طاولات متاحة للاختيار حالياً. اختر التوصيل أو الاستلام.";
  }
- const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
+ const params=new URLSearchParams(location.search);const qrTable=params.get("table")||params.get("table_number");if(qrTable){const match=tables.find(t=>String(t.table_number)===String(qrTable));if(match){tableSelect.value=match.id;$("#service-table-id").value=match.id;$("#order-type").value="dine_in";updateOrderFields();}}
  if(!products.length){notice.textContent="المنيو قيد التجهيز. ستظهر الأصناف هنا بعد إضافتها.";return;}
  if(!tableLoadFailed)notice.classList.add("hidden");renderCategories(catRes.data||[]);renderProducts();
 }
 $("#order-type").addEventListener("change",updateOrderFields);
 $("#menu-search").addEventListener("input",e=>{searchTerm=e.target.value.trim().toLocaleLowerCase("ar");renderProducts();});
 $("#favorites-toggle").addEventListener("click",()=>{showFavorites=!showFavorites;$("#favorites-toggle").classList.toggle("active",showFavorites);$("#favorites-toggle").setAttribute("aria-pressed",String(showFavorites));$("#favorites-toggle").textContent=showFavorites?"♥ عرض الكل":"♡ المفضلة";renderProducts();});
-$("#checkout-open").addEventListener("click",()=>{checkoutPanel.classList.remove("hidden");checkoutPanel.scrollIntoView({behavior:"smooth",block:"start"});});
-$("#checkout-close").addEventListener("click",()=>checkoutPanel.classList.add("hidden"));
+function openCartView(){cartView.classList.remove("hidden");document.body.classList.add("modal-open");}
+function closeCartView(){cartView.classList.add("hidden");document.body.classList.remove("modal-open");}
+$("#checkout-open").addEventListener("click",openCartView);
+$("#header-cart-open").addEventListener("click",openCartView);
+$("#checkout-close").addEventListener("click",closeCartView);
+cartView.addEventListener("click",e=>{if(e.target===cartView)closeCartView();});
 $("#cart-clear").addEventListener("click",()=>{cart.clear();renderCart();});
+const serviceNames={captain:"طلب نادل",water:"طلب ماء",cleaning:"طلب تنظيف",bill:"طلب الفاتورة"};
+document.querySelectorAll("[data-service]").forEach(button=>button.addEventListener("click",()=>{
+ activeService=button.dataset.service;
+ $("#service-modal-title").textContent=serviceNames[activeService]||"طلب خدمة";
+ $("#service-selected-label").textContent="سيتم إرسال: "+serviceNames[activeService]+" إلى الطاولة التي تختارها.";
+ $("#service-message").textContent="";
+ serviceView.classList.remove("hidden");document.body.classList.add("modal-open");
+}));
+function closeServiceView(){serviceView.classList.add("hidden");document.body.classList.remove("modal-open");}
+$("#service-close").addEventListener("click",closeServiceView);
+serviceView.addEventListener("click",e=>{if(e.target===serviceView)closeServiceView();});
+$("#service-form").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const tableId=$("#service-table-id").value;
+ const table=tables.find(t=>t.id===tableId);
+ const status=$("#service-message"),button=e.currentTarget.querySelector('button[type="submit"]');
+ if(!table){status.textContent="اختر رقم الطاولة أولاً.";return;}
+ button.disabled=true;status.textContent="جارٍ إرسال الطلب...";
+ const {error}=await supabase.from("table_service_requests").insert({restaurant_id:RESTAURANT_ID,table_id:tableId,request_type:activeService});
+ button.disabled=false;
+ if(error){status.textContent="تعذر إرسال الطلب: "+error.message;return;}
+ status.textContent="تم إرسال "+serviceNames[activeService]+" للطاولة "+(table.label||table.table_number)+".";
+ e.currentTarget.reset();
+ setTimeout(closeServiceView,1300);
+});
 $("#checkout-form").addEventListener("submit",async e=>{
  e.preventDefault();
  if(!cart.size){checkoutMessage.textContent="السلة فارغة. أضف وجبة أولاً.";return;}
