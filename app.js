@@ -27,22 +27,25 @@ function renderCart(){
  $("#checkout-total").textContent=money(total);
  cartItems.innerHTML="";saveCart();
  if(!qty){cartItems.innerHTML='<p class="empty-cart">السلة فارغة. أضف الأصناف التي تريدها من القائمة.</p>';return;}
+ const table=document.createElement("table");table.className="cart-table";
+ const thead=document.createElement("thead"),headRow=document.createElement("tr");
+ ["الصنف","سعر الوحدة","الكمية","المجموع"].forEach(label=>{const th=document.createElement("th");th.textContent=label;headRow.append(th);});
+ thead.append(headRow);table.append(thead);
+ const tbody=document.createElement("tbody");
  cart.forEach(item=>{
-  const row=document.createElement("div");row.className="cart-item-row";
-  const info=document.createElement("div");info.className="cart-item-info";
-  const name=document.createElement("strong");name.textContent=item.name;
-  const sub=document.createElement("small");sub.textContent=money(item.price)+" للواحد";
-  info.append(name,sub);
+  const row=document.createElement("tr");
+  const nameCell=document.createElement("td");nameCell.textContent=item.name;
+  const priceCell=document.createElement("td");priceCell.textContent=money(item.price);
+  const quantityCell=document.createElement("td");
   const controls=document.createElement("div");controls.className="quantity-controls";
-  const minus=document.createElement("button");minus.type="button";minus.textContent="−";minus.setAttribute("aria-label","تقليل الكمية");
-  minus.onclick=()=>changeQty(item.id,-1);
+  const minus=document.createElement("button");minus.type="button";minus.textContent="−";minus.setAttribute("aria-label","تقليل الكمية");minus.onclick=()=>changeQty(item.id,-1);
   const count=document.createElement("b");count.textContent=String(item.quantity);
-  const plus=document.createElement("button");plus.type="button";plus.textContent="+";plus.setAttribute("aria-label","زيادة الكمية");
-  plus.onclick=()=>changeQty(item.id,1);
-  controls.append(minus,count,plus);
-  const line=document.createElement("strong");line.className="cart-line-total";line.textContent=money(item.price*item.quantity);
-  row.append(info,controls,line);cartItems.append(row);
+  const plus=document.createElement("button");plus.type="button";plus.textContent="+";plus.setAttribute("aria-label","زيادة الكمية");plus.onclick=()=>changeQty(item.id,1);
+  controls.append(minus,count,plus);quantityCell.append(controls);
+  const totalCell=document.createElement("td");totalCell.className="cart-line-total";totalCell.textContent=money(item.price*item.quantity);
+  row.append(nameCell,priceCell,quantityCell,totalCell);tbody.append(row);
  });
+ table.append(tbody);cartItems.append(table);
 }
 function changeQty(id,delta){const item=cart.get(id);if(!item)return;item.quantity+=delta;if(item.quantity<1)cart.delete(id);else cart.set(id,item);renderCart();}
 function renderCategories(cats){
