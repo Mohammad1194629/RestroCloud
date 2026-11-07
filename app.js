@@ -7,7 +7,7 @@ const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
 const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#cart-items");
 const cartView=$("#cart-view"),serviceView=$("#service-view");
-let activeService="captain",serviceNames={};
+let activeService="captain",serviceNames={},favoritesButtonLabel="♡ المفضلة";
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
@@ -125,7 +125,7 @@ async function loadMenu(){
  put("contact-eyebrow",cfg.contact_eyebrow||"تواصل معنا");put("contact-title",cfg.contact_title||"يسعدنا سماع رأيك");put("contact-description",cfg.contact_description||"أرسل استفسارك أو ملاحظتك إلى إدارة المطعم.");
  put("contact-submit-text",cfg.contact_submit_text||"إرسال الرسالة");put("address-label",cfg.address_label||"📍 عنوان المطعم");
  put("reservation-label",cfg.reservation_label||"☎️ رقم الحجز");put("hours-label",cfg.hours_label||"🕒 أوقات العمل");
- put("favorites-button-text",cfg.favorites_button_text||"♡ المفضلة");
+ favoritesButtonLabel=cfg.favorites_button_text||"♡ المفضلة";put("favorites-button-text",favoritesButtonLabel);
  const search=$("#menu-search");if(search&&cfg.search_placeholder)search.placeholder=cfg.search_placeholder;
  const tags=Array.isArray(cfg.feature_tags)?cfg.feature_tags:["🥘 نكهات عراقية","🍽️ أطباق متنوعة","✨ تجربة سهلة"];
  $("#feature-tags").innerHTML="";tags.forEach(t=>{const span=document.createElement("span");span.textContent=t;$("#feature-tags").append(span);});
@@ -145,8 +145,8 @@ async function loadMenu(){
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
  if(settingRes.data?.cover_url){const cover=settingRes.data.cover_url.trim();if(cover.startsWith("https://"))document.querySelector(".hero").style.backgroundImage="linear-gradient(110deg,rgba(26,20,16,.84),rgba(26,20,16,.62)),url("+cover+")";}
  if(settingRes.data?.phone)$("#footer-phone").textContent="للتواصل: "+settingRes.data.phone;
-  $("#restaurant-address").textContent=settingRes.data?.address||"تلعفر";
-  $("#reservation-phone").textContent=settingRes.data?.reservation_phone||settingRes.data?.phone||"يُحدّد من إدارة المطعم";
+  $("#restaurant-address").textContent=settingRes.data?.address||"لم يحدد العنوان";
+  $("#reservation-phone").textContent=settingRes.data?.reservation_phone||settingRes.data?.phone||"لم يحدد رقم الحجز";
   const open=settingRes.data?.opening_time,close=settingRes.data?.closing_time;
   $("#working-hours").textContent=open&&close?String(open).slice(0,5)+" – "+String(close).slice(0,5):"يُحدّد من إدارة المطعم";
  $("#checkout-submit").disabled=!orderingEnabled;
@@ -167,7 +167,7 @@ async function loadMenu(){
 }
 $("#order-type").addEventListener("change",updateOrderFields);
 $("#menu-search").addEventListener("input",e=>{searchTerm=e.target.value.trim().toLocaleLowerCase("ar");renderProducts();});
-$("#favorites-toggle").addEventListener("click",()=>{showFavorites=!showFavorites;$("#favorites-toggle").classList.toggle("active",showFavorites);$("#favorites-toggle").setAttribute("aria-pressed",String(showFavorites));$("#favorites-toggle").textContent=showFavorites?"♥ عرض الكل":"♡ المفضلة";renderProducts();});
+$("#favorites-toggle").addEventListener("click",()=>{showFavorites=!showFavorites;$("#favorites-toggle").classList.toggle("active",showFavorites);$("#favorites-toggle").setAttribute("aria-pressed",String(showFavorites));$("#favorites-toggle").textContent=showFavorites?"♥ عرض الكل":favoritesButtonLabel;renderProducts();});
 function openCartView(){cartView.classList.remove("hidden");document.body.classList.add("modal-open");}
 function closeCartView(){cartView.classList.add("hidden");document.body.classList.remove("modal-open");}
 $("#checkout-open").addEventListener("click",openCartView);
