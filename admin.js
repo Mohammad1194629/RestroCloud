@@ -80,9 +80,13 @@ async function loadCategoryManager(){
   const row=document.createElement("div");row.className="category-row";
   const name=document.createElement("strong");name.textContent=c.name;
   const state=document.createElement("span");state.textContent=c.is_active?"ظاهر للزبائن":"مخفي";
+  const edit=document.createElement("button");edit.type="button";edit.className="outline-btn small-action";edit.textContent="تعديل الاسم";
+  edit.onclick=async()=>{const next=prompt("اسم القسم الجديد:",c.name);if(next===null)return;if(!next.trim()){msg($("#category-msg"),"اسم القسم لا يمكن أن يكون فارغاً.",true);return;}const result=await supabase.from("categories").update({name:next.trim()}).eq("id",c.id).eq("restaurant_id",RESTAURANT_ID);if(result.error){msg($("#category-msg"),result.error.message,true);return;}await loadCategories();await loadCategoryManager();await loadProducts();msg($("#category-msg"),"تم تعديل اسم القسم.");};
   const toggle=document.createElement("button");toggle.type="button";toggle.className="outline-btn small-action";toggle.textContent=c.is_active?"إخفاء":"إظهار";
-  toggle.onclick=async()=>{const {error}=await supabase.from("categories").update({is_active:!c.is_active}).eq("id",c.id).eq("restaurant_id",RESTAURANT_ID);if(error){msg($("#category-msg"),error.message,true);return;}await loadCategories();await loadCategoryManager();msg($("#category-msg"),"تم تحديث القسم.");};
-  row.append(name,state,toggle);box.append(row);
+  toggle.onclick=async()=>{const result=await supabase.from("categories").update({is_active:!c.is_active}).eq("id",c.id).eq("restaurant_id",RESTAURANT_ID);if(result.error){msg($("#category-msg"),result.error.message,true);return;}await loadCategories();await loadCategoryManager();msg($("#category-msg"),"تم تحديث القسم.");};
+  const del=document.createElement("button");del.type="button";del.className="delete-btn small-action";del.textContent="حذف";
+  del.onclick=async()=>{const check=await supabase.from("products").select("id",{count:"exact",head:true}).eq("restaurant_id",RESTAURANT_ID).eq("category_id",c.id);if(check.error){msg($("#category-msg"),check.error.message,true);return;}if(check.count>0){msg($("#category-msg"),"لا يمكن حذف القسم لأنه يحتوي على منتجات. انقل المنتجات أولاً.",true);return;}if(!confirm("حذف القسم "+c.name+" نهائياً؟"))return;const result=await supabase.from("categories").delete().eq("id",c.id).eq("restaurant_id",RESTAURANT_ID);if(result.error){msg($("#category-msg"),result.error.message,true);return;}await loadCategories();await loadCategoryManager();msg($("#category-msg"),"تم حذف القسم.");};
+  row.append(name,state,edit,toggle,del);box.append(row);
  });
  if(!allCategories.length)box.textContent="لا توجد أقسام.";
 }
