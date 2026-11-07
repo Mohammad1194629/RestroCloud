@@ -26,6 +26,7 @@
    <button class="nav-item active" data-page="home"><span>⌂</span> الرئيسية</button>
    <button class="nav-item" data-page="products"><span>☷</span> إدارة القائمة</button>
    <button class="nav-item" data-page="orders"><span>▣</span> الطلبات <b id="orders-badge" class="nav-badge">٠</b></button>
+   <button class="nav-item" data-page="table-services"><span>♧</span> خدمات الطاولة <b id="services-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="reports"><span>▤</span> التقارير</button>
    <button class="nav-item" data-page="messages"><span>✉</span> الرسائل <b id="messages-badge" class="nav-badge">٠</b></button>
    <button class="nav-item" data-page="settings"><span>⚙</span> إعدادات الموقع</button>
@@ -85,9 +86,37 @@
   <section id="page-settings" class="admin-page-section hidden">
    <div class="panel"><h2>إعدادات الموقع</h2><p class="small-note">بيانات المطعم التي تظهر للزبائن.</p>
     <form id="settings-form">
+     <div class="field-grid">
+      <label class="field">اسم المطعم<input id="setting-display-name" maxlength="140"></label>
+      <label class="field">عنوان الغلاف الرئيسي<input id="setting-hero-title" maxlength="140"></label>
+     </div>
      <label class="field field-spaced">عبارة الترحيب<input id="setting-welcome" maxlength="200"></label>
      <label class="field field-spaced">وصف المطعم<textarea id="setting-description" maxlength="1000"></textarea></label>
      <label class="field field-spaced">رابط صورة الغلاف (اختياري)<input id="setting-cover" type="url" placeholder="https://..."></label>
+     <div class="field-grid">
+      <label class="field">عنوان المطعم<input id="setting-address" maxlength="250"></label>
+      <label class="field">رقم الحجز<input id="setting-reservation" type="tel" maxlength="40"></label>
+      <label class="field">وقت الافتتاح<input id="setting-opening" type="time"></label>
+      <label class="field">وقت الإغلاق<input id="setting-closing" type="time"></label>
+      <label class="field">رابط الموقع على الخريطة<input id="setting-map" type="url" placeholder="https://maps.google.com/..."></label>
+     </div>
+     <div class="field-grid">
+      <label class="field">عنوان قسم القائمة<input id="setting-menu-title" maxlength="140"></label>
+      <label class="field">وصف قسم القائمة<input id="setting-menu-subtitle" maxlength="250"></label>
+      <label class="field">عنوان خدمات الطاولة<input id="setting-services-title" maxlength="140"></label>
+      <label class="field">وصف خدمات الطاولة<input id="setting-services-description" maxlength="250"></label>
+      <label class="field">عنوان قسم التواصل<input id="setting-contact-title" maxlength="140"></label>
+      <label class="field">وصف قسم التواصل<input id="setting-contact-description" maxlength="250"></label>
+      <label class="field">نص أسفل الموقع<input id="setting-footer-text" maxlength="300"></label>
+      <label class="field">العبارات التعريفية (افصل بينها بعلامة |)<input id="setting-feature-tags" maxlength="300"></label>
+     </div>
+     <div class="field-grid">
+      <label class="spicy-option"><input id="setting-show-services" type="checkbox"> إظهار خدمات الطاولة</label>
+      <label class="spicy-option"><input id="setting-show-contact" type="checkbox"> إظهار قسم التواصل</label>
+      <label class="spicy-option"><input id="setting-show-address" type="checkbox"> إظهار العنوان</label>
+      <label class="spicy-option"><input id="setting-show-reservation" type="checkbox"> إظهار رقم الحجز</label>
+      <label class="spicy-option"><input id="setting-show-hours" type="checkbox"> إظهار أوقات العمل</label>
+     </div>
      <div class="field-grid">
       <label class="field">رقم الهاتف<input id="setting-phone" type="tel" maxlength="40"></label>
       <label class="field">رقم واتساب<input id="setting-whatsapp" type="tel" maxlength="40"></label>
@@ -97,6 +126,19 @@
      <button class="solid-btn" type="submit">حفظ الإعدادات</button><p id="settings-msg" class="status-msg" role="status"></p>
     </form>
    </div>
+   <div class="panel"><div class="section-heading"><div><h2>إدارة أزرار خدمات الطاولة</h2><p>إضافة خدمة أو تعديل اسمها ورمزها أو إخفاؤها.</p></div></div>
+    <form id="service-admin-form"><input id="service-admin-id" type="hidden">
+     <div class="field-grid">
+      <label class="field">اسم الخدمة<input id="service-admin-title" maxlength="80" required></label>
+      <label class="field">الرمز التعبيري<input id="service-admin-icon" maxlength="8" placeholder="🔔" required></label>
+      <label class="field">مفتاح الخدمة (إنجليزي)<input id="service-admin-key" maxlength="30" pattern="[a-z0-9_-]+" required></label>
+      <label class="spicy-option"><input id="service-admin-active" type="checkbox" checked> إظهار الخدمة للزبائن</label>
+     </div><div class="form-actions"><button class="solid-btn" type="submit">حفظ الخدمة</button><button id="service-admin-reset" class="outline-btn" type="button">خدمة جديدة</button></div>
+    </form><div id="service-admin-rows" class="category-rows"></div><p id="service-admin-msg" class="status-msg" role="status"></p>
+   </div>
+  </section>
+  <section id="page-table-services" class="admin-page-section hidden">
+   <div class="panel"><div class="section-heading"><div><h2>طلبات خدمات الطاولة</h2><p>طلبات النادل والماء والتنظيف والفاتورة الواردة من الزبائن.</p></div><button id="refresh-table-services" class="outline-btn" type="button">تحديث</button></div><div id="table-services-list" class="orders-list"></div></div>
   </section>
   <section id="page-password" class="admin-page-section hidden">
    <div class="panel password-panel"><h2>تغيير كلمة المرور</h2><p class="small-note">اختر كلمة مرور قوية لا تقل عن 8 أحرف.</p>
