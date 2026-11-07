@@ -334,3 +334,20 @@ footer small{font-size:10px;color:#ffffff70}
  .checkout-head-actions button{font-size:10px;padding:7px 9px}
  .service-modal-card{padding:16px}
 }
+
+
+.cart-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;overflow:hidden;border:1px solid #eee2d7;border-radius:10px}
+.cart-table th{background:#f8f2eb;color:#6d4035;font-size:11px;white-space:nowrap}
+.cart-table th,.cart-table td{padding:12px 9px;border-bottom:1px solid #eee7df;text-align:right;vertical-align:middle}
+.cart-table tbody tr:last-child td{border-bottom:0}
+.cart-table td:first-child{font-weight:800;color:#2b211b}
+.cart-table .quantity-controls{justify-content:flex-start;gap:7px}
+.cart-table .quantity-controls button{width:28px;height:28px;flex:0 0 28px}
+.cart-table .cart-line-total{font-weight:800;color:#9f3026;white-space:nowrap}
+@media(max-width:520px){
+ .cart-table{font-size:10px}
+ .cart-table th,.cart-table td{padding:9px 5px}
+ .cart-table th{font-size:9px}
+ .cart-table .quantity-controls{gap:4px}
+ .cart-table .quantity-controls button{width:24px;height:24px;flex-basis:24px}
+}
