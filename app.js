@@ -148,7 +148,7 @@ async function loadMenu(){
   $("#restaurant-address").textContent=settingRes.data?.address||"لم يحدد العنوان";
   $("#reservation-phone").textContent=settingRes.data?.reservation_phone||settingRes.data?.phone||"لم يحدد رقم الحجز";
   const open=settingRes.data?.opening_time,close=settingRes.data?.closing_time;
-  $("#working-hours").textContent=open&&close?String(open).slice(0,5)+" – "+String(close).slice(0,5):"يُحدّد من إدارة المطعم";
+  $("#working-hours").textContent=open&&close?String(open).slice(0,5)+" – "+String(close).slice(0,5) :"لم تحدد أوقات العمل";
  $("#checkout-submit").disabled=!orderingEnabled;
  $("#ordering-disabled-note").classList.toggle("hidden",orderingEnabled);
  $("#checkout-submit").textContent=orderingEnabled?"إرسال الطلب إلى المطعم":"الطلبات غير مفعّلة حالياً";
