@@ -7,7 +7,7 @@ const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
 const cartCount=$("#cart-count"),cartSummary=$("#cart-summary"),cartItems=$("#cart-items");
 const cartView=$("#cart-view"),serviceView=$("#service-view");
-let activeService="captain";
+let activeService="captain",serviceNames={};
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
@@ -95,11 +95,12 @@ function updateOrderFields(){
  if(!delivery) $("#delivery-address").value="";
 }
 async function loadMenu(){
- const [catRes,itemRes,settingRes,tableRes]=await Promise.all([
+ const [catRes,itemRes,settingRes,tableRes,serviceRes]=await Promise.all([
   supabase.from("categories").select("id,name,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order"),
   supabase.from("products").select("id,category_id,name,description,price,image_url,is_available,is_spicy,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_available",true).order("sort_order"),
-  supabase.from("restaurant_settings").select("ordering_enabled,welcome_text,description,cover_url,phone,address,reservation_phone,opening_time,closing_time").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
-  supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number")
+  supabase.from("restaurant_settings").select("*").eq("restaurant_id",RESTAURANT_ID).maybeSingle(),
+  supabase.from("restaurant_tables").select("id,table_number,label").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("table_number"),
+  supabase.from("restaurant_services").select("id,service_key,title,icon,sort_order").eq("restaurant_id",RESTAURANT_ID).eq("is_active",true).order("sort_order")
  ]);
  if(catRes.error){notice.textContent="تعذر تحميل الأقسام: "+catRes.error.message;return;}
  if(itemRes.error){notice.textContent="تعذر تحميل المنتجات: "+itemRes.error.message;return;}
@@ -111,6 +112,35 @@ async function loadMenu(){
  }else{tables=tableRes.data||[];tableLoadFailed=false;}
  products=(itemRes.data||[]).filter(p=>(catRes.data||[]).some(c=>c.id===p.category_id));restoreCart();renderCart();
  orderingEnabled=settingRes.data?.ordering_enabled===true;
+ const cfg=settingRes.data||{};
+ const put=(id,value)=>{const el=$("#"+id);if(el&&value)el.textContent=value;};
+ const hide=(id,visible)=>{const el=$("#"+id);if(el)el.classList.toggle("hidden",!visible);};
+ const restaurantName=cfg.display_name||"مطعم القلعة تلعفر";
+ put("restaurant-name",cfg.hero_title||cfg.display_name||"مطعم القلعة");
+ put("footer-brand",restaurantName);put("header-brand-mark",restaurantName.slice(0,1));
+ document.title=restaurantName+" | قائمة الطعام";
+ put("discover-button-text",cfg.discover_button_text||"اكتشف قائمة الطعام");
+ put("menu-eyebrow",cfg.menu_eyebrow||"قائمتنا");put("menu-title",cfg.menu_title||"اختر طبقك المفضل");put("menu-subtitle",cfg.menu_subtitle||"اكتشف الأطباق والمشروبات والحلويات.");
+ put("services-eyebrow",cfg.services_eyebrow||"خدمة أسرع على طاولتك");put("services-title",cfg.services_title||"طلب خدمات الطاولة");put("services-description",cfg.services_description||"اختر الخدمة وسنرسل طلبك مباشرة إلى فريق المطعم.");
+ put("contact-eyebrow",cfg.contact_eyebrow||"تواصل معنا");put("contact-title",cfg.contact_title||"يسعدنا سماع رأيك");put("contact-description",cfg.contact_description||"أرسل استفسارك أو ملاحظتك إلى إدارة المطعم.");
+ put("contact-submit-text",cfg.contact_submit_text||"إرسال الرسالة");put("address-label",cfg.address_label||"📍 عنوان المطعم");
+ put("reservation-label",cfg.reservation_label||"☎️ رقم الحجز");put("hours-label",cfg.hours_label||"🕒 أوقات العمل");
+ put("favorites-button-text",cfg.favorites_button_text||"♡ المفضلة");
+ const search=$("#menu-search");if(search&&cfg.search_placeholder)search.placeholder=cfg.search_placeholder;
+ const tags=Array.isArray(cfg.feature_tags)?cfg.feature_tags:["🥘 نكهات عراقية","🍽️ أطباق متنوعة","✨ تجربة سهلة"];
+ $("#feature-tags").innerHTML="";tags.forEach(t=>{const span=document.createElement("span");span.textContent=t;$("#feature-tags").append(span);});
+ hide("address-info",cfg.show_address!==false);hide("reservation-info",cfg.show_reservation!==false);hide("hours-info",cfg.show_working_hours!==false);
+ hide("table-services",cfg.show_services!==false);hide("contact",cfg.show_contact!==false);
+ if(cfg.footer_text)put("footer-text",cfg.footer_text);
+ const map=$("#footer-map");if(map){if(cfg.map_url&&/^https:\/\//i.test(cfg.map_url)){map.href=cfg.map_url;map.classList.remove("hidden");}else map.classList.add("hidden");}
+ serviceNames={};const serviceBox=$("#service-actions");serviceBox.innerHTML="";
+ (serviceRes.data||[]).forEach(s=>{
+  serviceNames[s.service_key]=s.title;
+  const button=document.createElement("button");button.type="button";button.dataset.service=s.service_key;
+  const icon=document.createElement("span");icon.textContent=s.icon||"🔔";const title=document.createElement("span");title.textContent=s.title;
+  button.append(icon,title);button.addEventListener("click",()=>openServiceRequest(s.service_key));serviceBox.append(button);
+ });
+
  if(settingRes.data?.welcome_text)$("#welcome-text").textContent=settingRes.data.welcome_text;
  if(settingRes.data?.description)$("#restaurant-description").textContent=settingRes.data.description;
  if(settingRes.data?.cover_url){const cover=settingRes.data.cover_url.trim();if(cover.startsWith("https://"))document.querySelector(".hero").style.backgroundImage="linear-gradient(110deg,rgba(26,20,16,.84),rgba(26,20,16,.62)),url("+cover+")";}
@@ -145,14 +175,13 @@ $("#header-cart-open").addEventListener("click",openCartView);
 $("#checkout-close").addEventListener("click",closeCartView);
 cartView.addEventListener("click",e=>{if(e.target===cartView)closeCartView();});
 $("#cart-clear").addEventListener("click",()=>{cart.clear();renderCart();});
-const serviceNames={captain:"طلب نادل",water:"طلب ماء",cleaning:"طلب تنظيف",bill:"طلب الفاتورة"};
-document.querySelectorAll("[data-service]").forEach(button=>button.addEventListener("click",()=>{
- activeService=button.dataset.service;
+function openServiceRequest(key){
+ activeService=key;
  $("#service-modal-title").textContent=serviceNames[activeService]||"طلب خدمة";
- $("#service-selected-label").textContent="سيتم إرسال: "+serviceNames[activeService]+" إلى الطاولة التي تختارها.";
+ $("#service-selected-label").textContent="سيتم إرسال: "+(serviceNames[activeService]||"طلب خدمة")+" إلى الطاولة التي تختارها.";
  $("#service-message").textContent="";
  serviceView.classList.remove("hidden");document.body.classList.add("modal-open");
-}));
+}
 function closeServiceView(){serviceView.classList.add("hidden");document.body.classList.remove("modal-open");}
 $("#service-close").addEventListener("click",closeServiceView);
 serviceView.addEventListener("click",e=>{if(e.target===serviceView)closeServiceView();});
