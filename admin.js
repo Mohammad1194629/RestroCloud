@@ -294,7 +294,7 @@ $("#service-admin-form").addEventListener("submit",async e=>{
  resetServiceAdminForm();msg($("#service-admin-msg"),"تم حفظ الخدمة.");await loadServiceManager();
 });
 $("#service-admin-reset").addEventListener("click",resetServiceAdminForm);
-const serviceStatusNames={pending:"قيد الانتظار",in_progress:"قيد التنفيذ",completed:"مكتمل",cancelled:"ملغي"};
+const serviceStatusNames={pending:"قيد الانتظار",completed:"مكتمل",cancelled:"ملغي"};
 async function loadTableServiceRequests(){
  const box=$("#table-services-list");if(!box)return;
  const [reqRes,tableRes,serviceRes]=await Promise.all([
