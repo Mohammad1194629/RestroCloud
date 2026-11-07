@@ -223,7 +223,7 @@ async function loadOverview(){
  $("#report-summary").textContent="الطلبات المكتملة: "+digits(completed.length)+"، الطلبات غير المكتملة أو الملغاة: "+digits(orders.length-completed.length)+"، قيمة المبيعات المكتملة: "+money(sales)+".";
 }
 async function loadSettings(){
- const fields="display_name,hero_title,welcome_text,description,phone,whatsapp_number,ordering_enabled,cover_url,address,reservation_phone,opening_time,closing_time,map_url,menu_title,menu_subtitle,services_title,services_description,contact_title,contact_description,footer_text,feature_tags,show_services,show_contact,show_address,show_reservation,show_working_hours";
+ const fields="display_name,hero_title,welcome_text,description,phone,whatsapp_number,ordering_enabled,cover_url,address,reservation_phone,opening_time,closing_time,map_url,menu_title,menu_subtitle,services_title,services_description,contact_title,contact_description,footer_text,feature_tags,discover_button_text,menu_eyebrow,services_eyebrow,contact_eyebrow,contact_submit_text,address_label,reservation_label,hours_label,favorites_button_text,search_placeholder,show_services,show_contact,show_address,show_reservation,show_working_hours";
  const {data,error}=await supabase.from("restaurant_settings").select(fields).eq("restaurant_id",RESTAURANT_ID).maybeSingle();
  if(error){msg($("#settings-msg"),error.message,true);return;} if(!data)return;
  const set=(id,value)=>{const el=$("#"+id);if(el)el.value=value??"";};
@@ -236,6 +236,11 @@ async function loadSettings(){
  set("setting-services-title",data.services_title);set("setting-services-description",data.services_description);
  set("setting-contact-title",data.contact_title);set("setting-contact-description",data.contact_description);set("setting-footer-text",data.footer_text);
  set("setting-feature-tags",Array.isArray(data.feature_tags)?data.feature_tags.join(" | "):"");
+ set("setting-discover-button",data.discover_button_text);set("setting-menu-eyebrow",data.menu_eyebrow);
+ set("setting-services-eyebrow",data.services_eyebrow);set("setting-contact-eyebrow",data.contact_eyebrow);
+ set("setting-contact-submit",data.contact_submit_text);set("setting-address-label",data.address_label);
+ set("setting-reservation-label",data.reservation_label);set("setting-hours-label",data.hours_label);
+ set("setting-favorites-text",data.favorites_button_text);set("setting-search-placeholder",data.search_placeholder);
  check("setting-ordering",data.ordering_enabled);check("setting-show-services",data.show_services);
  check("setting-show-contact",data.show_contact);check("setting-show-address",data.show_address);
  check("setting-show-reservation",data.show_reservation);check("setting-show-hours",data.show_working_hours);
@@ -250,7 +255,10 @@ $("#settings-form").addEventListener("submit",async e=>{
   phone:val("setting-phone"),whatsapp_number:val("setting-whatsapp"),cover_url:val("setting-cover"),address:val("setting-address"),
   reservation_phone:val("setting-reservation"),opening_time:val("setting-opening"),closing_time:val("setting-closing"),map_url:val("setting-map"),
   menu_title:val("setting-menu-title"),menu_subtitle:val("setting-menu-subtitle"),services_title:val("setting-services-title"),
-  services_description:val("setting-services-description"),contact_title:val("setting-contact-title"),
+  services_description:val("setting-services-description"),discover_button_text:val("setting-discover-button"),
+  menu_eyebrow:val("setting-menu-eyebrow"),services_eyebrow:val("setting-services-eyebrow"),contact_eyebrow:val("setting-contact-eyebrow"),
+  contact_submit_text:val("setting-contact-submit"),address_label:val("setting-address-label"),reservation_label:val("setting-reservation-label"),
+  hours_label:val("setting-hours-label"),favorites_button_text:val("setting-favorites-text"),search_placeholder:val("setting-search-placeholder"),contact_title:val("setting-contact-title"),
   contact_description:val("setting-contact-description"),footer_text:val("setting-footer-text"),feature_tags:tags,
   ordering_enabled:enabled,show_services:flag("setting-show-services"),show_contact:flag("setting-show-contact"),
   show_address:flag("setting-show-address"),show_reservation:flag("setting-show-reservation"),show_working_hours:flag("setting-show-hours")
