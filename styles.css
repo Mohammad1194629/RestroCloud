@@ -221,3 +221,116 @@ footer small{font-size:10px;color:#ffffff70}
 .menu-dropdown-panel a:before{content:"";width:7px;height:7px;border-radius:50%;background:#c0392b;flex:0 0 7px}
 .menu-dropdown-panel a:hover,.menu-dropdown-panel a:focus{background:#f8eee9;color:#c0392b;outline:2px solid #c0392b22}
 .menu-dropdown[open] .menu-dropdown-panel{display:block}
+
+
+/* Refined restaurant cover, fixed actions, info strip and standalone cart */
+.hero{
+ height:auto;min-height:650px;padding:105px 18px 54px;
+ background-color:#241710;
+ background-image:linear-gradient(180deg,rgba(20,14,10,.40),rgba(20,14,10,.52) 38%,rgba(20,14,10,.88)),url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=2000&q=88");
+ background-size:cover;background-position:center 54%;
+}
+.hero:before{background:linear-gradient(180deg,rgba(12,9,7,.30),rgba(12,9,7,.08) 40%,rgba(12,9,7,.65));pointer-events:none}
+.topbar{
+ position:fixed;top:0;left:0;right:0;z-index:1200;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:10px max(4vw,14px);background:rgba(25,18,14,.76);
+ border-bottom:1px solid #ffffff22;backdrop-filter:blur(14px);
+}
+.brand-mark{flex:0 0 42px;background:#ffffff18}
+.header-actions{display:flex;align-items:center;gap:9px}
+.header-cart-btn{
+ width:46px;height:46px;border:1px solid #ffffff66;border-radius:13px;
+ background:#ffffff18;color:#fff;display:flex;align-items:center;justify-content:center;
+ gap:5px;font:700 14px Cairo;cursor:pointer
+}
+.header-cart-btn span{font-size:19px}
+.header-cart-btn b{min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:20px;background:#c0392b;color:#fff;font-size:10px}
+.menu-dropdown{position:relative;z-index:30}
+.menu-toggle{width:46px;height:46px}
+.menu-dropdown-panel{position:absolute;top:calc(100% + 10px);left:0;right:auto}
+.hero-copy{padding:48px 16px 18px;max-width:850px}
+.hero h1{font-size:clamp(48px,9vw,84px);text-shadow:0 4px 22px #0008}
+.hero-copy>p{color:#f5e9dc}
+.restaurant-info-strip{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+ margin:34px auto 0;max-width:850px;overflow:hidden;
+ border:1px solid #ffffff55;border-radius:18px;
+ background:rgba(255,250,244,.94);color:#2b211b;
+ box-shadow:0 16px 42px #0004;backdrop-filter:blur(10px)
+}
+.restaurant-info-strip>div{min-width:0;padding:15px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.restaurant-info-strip>div+div{border-right:1px solid #e5d8cb}
+.restaurant-info-strip span{font-size:12px;color:#8d4435;font-weight:800}
+.restaurant-info-strip strong{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.hero-points{margin:22px auto 0;gap:9px 22px;font-size:13px}
+.table-services{max-width:1120px;margin:30px auto 8px;padding:0 18px}
+.services-heading{text-align:center;margin-bottom:16px}
+.services-heading h2{font-size:25px;margin:5px 0;color:#211914}
+.services-heading p{font-size:12px;color:#786f66;margin:0}
+.service-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.service-actions button{
+ min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+ border:1px solid #eadfd4;border-radius:15px;background:#fff;color:#49372f;
+ font:800 13px Cairo;box-shadow:0 5px 18px #3b21100a;cursor:pointer
+}
+.service-actions button span{font-size:23px}
+.service-actions button:active{transform:scale(.98);background:#fff1ed}
+.page-wrap{padding-top:35px}
+.cart-panel{display:none!important}
+.cart-panel.cart-panel-visible{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;
+ position:fixed;bottom:12px;left:12px;right:12px;z-index:1100;
+ max-width:720px;margin:0 auto;padding:10px 13px;border:1px solid #ffffff22;
+ border-radius:14px;background:rgba(29,22,18,.96);box-shadow:0 10px 34px #0004;
+}
+.cart-panel-copy{display:grid;gap:3px;min-width:0}
+.cart-panel-copy strong{font-size:12px;color:#fff}
+.cart-panel-copy small{font-size:10px;color:#e7cfc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-checkout-btn{white-space:nowrap;font-size:12px;padding:9px 14px}
+.cart-view{
+ position:fixed;inset:0;z-index:1500;overflow-y:auto;padding:24px 12px;
+ background:rgba(20,14,10,.78);backdrop-filter:blur(5px)
+}
+.checkout-panel{
+ width:min(100%,850px);margin:18px auto 40px;padding:22px;
+ border:1px solid #e8ddd0;border-radius:18px;background:#fff;
+ box-shadow:0 18px 60px #0005
+}
+.checkout-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.modal-open{overflow:hidden}
+.service-view{
+ position:fixed;inset:0;z-index:1600;display:grid;place-items:center;
+ padding:16px;background:rgba(20,14,10,.78);backdrop-filter:blur(5px)
+}
+.service-modal-card{
+ width:min(100%,440px);padding:22px;border-radius:18px;background:#fff;
+ border:1px solid #e8ddd0;box-shadow:0 18px 60px #0005
+}
+.service-modal-card>p{font-size:12px;color:#786f66;line-height:1.8}
+.service-modal-card .field{margin:15px 0}
+.service-modal-card select{margin-top:5px}
+@media(max-width:650px){
+ .hero{min-height:610px;padding:92px 12px 38px;background-position:center}
+ .hero-copy{padding:45px 5px 12px}
+ .restaurant-info-strip{margin-top:26px;border-radius:14px}
+ .restaurant-info-strip>div{padding:11px 5px;gap:5px}
+ .restaurant-info-strip span{font-size:10px}
+ .restaurant-info-strip strong{font-size:10px}
+ .hero-points{font-size:11px;gap:7px 12px}
+ .service-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .service-actions button{min-height:72px;font-size:12px}
+ .table-services{margin-top:23px;padding:0 12px}
+ .services-heading h2{font-size:22px}
+ .cart-panel.cart-panel-visible{bottom:8px;left:8px;right:8px;padding:9px 10px;grid-template-columns:minmax(0,1fr) auto}
+ .cart-panel-copy strong{font-size:11px}
+ .cart-panel-copy small{max-width:210px;font-size:9px}
+ .cart-checkout-btn{font-size:10px;padding:9px 11px}
+ .cart-view{padding:10px 8px}
+ .checkout-panel{padding:14px;margin:8px auto 24px}
+ .checkout-head{align-items:flex-start}
+ .checkout-head h2{font-size:17px}
+ .checkout-head-actions{justify-content:flex-end}
+ .checkout-head-actions button{font-size:10px;padding:7px 9px}
+ .service-modal-card{padding:16px}
+}
