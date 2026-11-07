@@ -233,6 +233,10 @@ async function loadSettings(){
  const set=(id,value)=>{const el=$("#"+id);if(el)el.value=value??"";};
  const check=(id,value)=>{const el=$("#"+id);if(el)el.checked=value!==false;};
  set("setting-display-name",data.display_name);set("setting-hero-title",data.hero_title);
+ if(data.display_name){
+  document.querySelectorAll(".sidebar-brand strong,.sidebar-restaurant").forEach(el=>el.textContent=data.display_name);
+  const loginBrand=document.querySelector(".login-card .eyebrow");if(loginBrand)loginBrand.textContent=data.display_name;
+ }
  set("setting-welcome",data.welcome_text);set("setting-description",data.description);set("setting-phone",data.phone);
  set("setting-whatsapp",data.whatsapp_number);set("setting-cover",data.cover_url);set("setting-address",data.address);
  set("setting-reservation",data.reservation_phone);set("setting-opening",data.opening_time?.slice(0,5));set("setting-closing",data.closing_time?.slice(0,5));
@@ -293,7 +297,9 @@ function resetServiceAdminForm(){$("#service-admin-form").reset();$("#service-ad
 $("#service-admin-form").addEventListener("submit",async e=>{
  e.preventDefault();const id=$("#service-admin-id").value;
  const payload={restaurant_id:RESTAURANT_ID,service_key:$("#service-admin-key").value.trim(),title:$("#service-admin-title").value.trim(),icon:$("#service-admin-icon").value.trim(),is_active:$("#service-admin-active").checked};
- const result=id?await supabase.from("restaurant_services").update({title:payload.title,icon:payload.icon,is_active:payload.is_active}).eq("id",id).eq("restaurant_id",RESTAURANT_ID):await supabase.from("restaurant_services").insert({...payload,sort_order:Date.now()});
+ let result;
+ if(id)result=await supabase.from("restaurant_services").update({title:payload.title,icon:payload.icon,is_active:payload.is_active}).eq("id",id).eq("restaurant_id",RESTAURANT_ID);
+ else{const latest=await supabase.from("restaurant_services").select("sort_order").eq("restaurant_id",RESTAURANT_ID).order("sort_order",{ascending:false}).limit(1);if(latest.error){msg($("#service-admin-msg"),latest.error.message,true);return;}result=await supabase.from("restaurant_services").insert({...payload,sort_order:(latest.data?.[0]?.sort_order||0)+1});}
  if(result.error){msg($("#service-admin-msg"),"تعذر حفظ الخدمة: "+result.error.message,true);return;}
  resetServiceAdminForm();msg($("#service-admin-msg"),"تم حفظ الخدمة.");await loadServiceManager();
 });
