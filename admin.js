@@ -21,7 +21,7 @@ function showPage(name){
  if(name==="messages")loadMessages();
  if(name==="products")loadCategoryManager();
  if(name==="reports"||name==="home")loadOverview();
- if(name==="settings"){loadSettings();loadServiceManager();}
+ if(name==="settings"){loadSettings();loadServiceManager();loadTableManager();}
 }
 async function loadDashboard(){
  const {data:{user},error:authError}=await supabase.auth.getUser();
@@ -275,6 +275,40 @@ $("#settings-form").addEventListener("submit",async e=>{
  if(error)msg($("#settings-msg"),"تعذر حفظ الإعدادات: "+error.message,true);
  else msg($("#settings-msg"),"تم حفظ محتوى الموقع وإعداداته. حدّث صفحة المطعم لرؤية التغييرات.");
 });
+async function loadTableManager(){
+ const box=$("#table-admin-rows");if(!box)return;
+ const {data,error}=await supabase.from("restaurant_tables").select("id,table_number,label,is_active").eq("restaurant_id",RESTAURANT_ID).order("table_number");
+ if(error){msg($("#table-admin-msg"),"تعذر تحميل الطاولات: "+error.message,true);return;}
+ box.innerHTML="";
+ (data||[]).forEach(t=>{
+  const row=document.createElement("div");row.className="category-row";
+  const title=document.createElement("strong");title.textContent="طاولة "+t.table_number+(t.label?" — "+t.label:"");
+  const state=document.createElement("span");state.textContent=t.is_active?"متاحة":"متوقفة";
+  const edit=document.createElement("button");edit.type="button";edit.className="outline-btn small-action";edit.textContent="تعديل";
+  edit.onclick=()=>{$("#table-admin-id").value=t.id;$("#table-admin-number").value=t.table_number;$("#table-admin-label").value=t.label||"";$("#table-admin-active").checked=t.is_active;};
+  const toggle=document.createElement("button");toggle.type="button";toggle.className="outline-btn small-action";toggle.textContent=t.is_active?"إيقاف":"تفعيل";
+  toggle.onclick=async()=>{const result=await supabase.from("restaurant_tables").update({is_active:!t.is_active}).eq("id",t.id).eq("restaurant_id",RESTAURANT_ID);if(result.error){msg($("#table-admin-msg"),result.error.message,true);return;}await loadTableManager();};
+  const del=document.createElement("button");del.type="button";del.className="delete-btn small-action";del.textContent="حذف";
+  del.onclick=async()=>{const [orders,requests]=await Promise.all([
+   supabase.from("orders").select("id",{count:"exact",head:true}).eq("table_id",t.id),
+   supabase.from("table_service_requests").select("id",{count:"exact",head:true}).eq("table_id",t.id)
+  ]);if(orders.error||requests.error){msg($("#table-admin-msg"),orders.error?.message||requests.error?.message,true);return;}
+  if((orders.count||0)+(requests.count||0)>0){msg($("#table-admin-msg"),"هذه الطاولة مرتبطة بطلبات سابقة؛ أوقفها بدلاً من حذفها.",true);return;}
+  if(!confirm("حذف الطاولة رقم "+t.table_number+"؟"))return;
+  const result=await supabase.from("restaurant_tables").delete().eq("id",t.id).eq("restaurant_id",RESTAURANT_ID);if(result.error){msg($("#table-admin-msg"),result.error.message,true);return;}await loadTableManager();};
+  row.append(title,state,edit,toggle,del);box.append(row);
+ });
+ if(!(data||[]).length)box.textContent="لم تتم إضافة طاولات بعد.";
+}
+function resetTableAdminForm(){$("#table-admin-form").reset();$("#table-admin-id").value="";$("#table-admin-active").checked=true;}
+$("#table-admin-form").addEventListener("submit",async e=>{
+ e.preventDefault();const id=$("#table-admin-id").value;
+ const payload={table_number:Number($("#table-admin-number").value),label:$("#table-admin-label").value.trim()||null,is_active:$("#table-admin-active").checked};
+ const result=id?await supabase.from("restaurant_tables").update(payload).eq("id",id).eq("restaurant_id",RESTAURANT_ID):await supabase.from("restaurant_tables").insert({...payload,restaurant_id:RESTAURANT_ID});
+ if(result.error){msg($("#table-admin-msg"),"تعذر حفظ الطاولة: "+result.error.message,true);return;}
+ resetTableAdminForm();msg($("#table-admin-msg"),"تم حفظ الطاولة.");await loadTableManager();
+});
+$("#table-admin-reset").addEventListener("click",resetTableAdminForm);
 async function loadServiceManager(){
  const box=$("#service-admin-rows");if(!box)return;
  const {data,error}=await supabase.from("restaurant_services").select("*").eq("restaurant_id",RESTAURANT_ID).order("sort_order");
