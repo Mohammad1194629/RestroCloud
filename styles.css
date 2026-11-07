@@ -351,3 +351,6 @@ footer small{font-size:10px;color:#ffffff70}
  .cart-table .quantity-controls{gap:4px}
  .cart-table .quantity-controls button{width:24px;height:24px;flex-basis:24px}
 }
+
+.footer-map{color:#f0c7ad;font-size:12px;text-decoration:underline;margin-top:5px}
+#service-actions button span+span{font-size:12px}
