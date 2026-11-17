@@ -21,7 +21,7 @@ async function loadRestaurants(){
   const card=el("article","restaurant-card"),info=el("div",""),title=el("div","restaurant-title",r.name),slug=el("div","restaurant-meta",r.slug),status=el("span","status "+r.status,statusText[r.status]||r.status);
   info.append(title,slug,status);
   const actions=el("div","card-actions");
-  const site=el("a","","الموقع");site.href="index.html?r="+encodeURIComponent(r.slug);site.target="_blank";site.rel="noopener";
+  const site=el("a","","الموقع");site.href="restaurants/"+encodeURIComponent(r.slug)+"/";site.target="_blank";site.rel="noopener";
   const admin=el("a","","لوحة المطعم");admin.href="admin.html?r="+encodeURIComponent(r.slug);admin.target="_blank";admin.rel="noopener";
   actions.append(site,admin);
   if(r.status!=="active"){const activate=el("button","activate","تفعيل");activate.onclick=()=>setStatus(r,"active");actions.append(activate);}
