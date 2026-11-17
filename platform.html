@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#26352b">
+<title>RestroCloud | الإدارة المركزية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="platform.css">
+</head>
+<body>
+<section id="login-panel" class="login-wrap">
+ <form id="login-form" class="login-card">
+  <div class="brand-mark">R</div><span class="eyebrow">RESTROCLOUD</span>
+  <h1>الإدارة المركزية</h1><p>سجّل الدخول بحساب مدير المنصة.</p>
+  <label>البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label>
+  <label>كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label>
+  <button class="primary" type="submit">تسجيل الدخول</button>
+  <p id="login-message" class="message" role="status"></p>
+ </form>
+</section>
+<div id="app" class="app hidden">
+ <aside class="sidebar">
+  <div class="brand"><span class="brand-mark">R</span><div><strong>RestroCloud</strong><small>منصة المطاعم</small></div></div>
+  <div class="sidebar-label">إدارة النظام</div>
+  <a class="side-link active" href="#restaurants">المطاعم</a>
+  <div class="sidebar-note">حساب مركزي واحد، وبيانات منفصلة لكل مطعم.</div>
+  <button id="logout" class="logout">تسجيل الخروج</button>
+ </aside>
+ <main class="main">
+  <header class="topbar"><div><span class="eyebrow">لوحة مدير المنصة</span><h1>إدارة المطاعم</h1><p>تابع حالة المواقع وأدر حسابات المطاعم من مكان واحد.</p></div><span class="secure-pill">اتصال آمن · RLS</span></header>
+  <section class="stats">
+   <article><span>كل المطاعم</span><strong id="stat-total">٠</strong></article>
+   <article><span>نشطة</span><strong id="stat-active">٠</strong></article>
+   <article><span>مسودات</span><strong id="stat-draft">٠</strong></article>
+   <article><span>موقوفة</span><strong id="stat-suspended">٠</strong></article>
+  </section>
+  <section class="panel" id="restaurants">
+   <div class="panel-head"><div><h2>المطاعم المسجلة</h2><p>لكل مطعم موقع ولوحة إدارة مستقلان.</p></div><button id="refresh" class="secondary" type="button">تحديث القائمة</button></div>
+   <div id="restaurant-list" class="restaurant-list"><p class="muted">جارٍ تحميل المطاعم...</p></div>
+  </section>
+  <section class="panel">
+   <div class="panel-head"><div><h2>إضافة مطعم جديد</h2><p>يُنشأ المطعم كمسودة حتى تجهز بياناته وموقعه.</p></div></div>
+   <form id="create-form" class="create-form">
+    <label>اسم المطعم<input id="new-name" maxlength="120" required placeholder="مثلاً: مطعم جديد"></label>
+    <label>الرابط المختصر بالإنجليزية<input id="new-slug" maxlength="50" pattern="[a-z0-9][a-z0-9-]{1,48}[a-z0-9]" required placeholder="new-restaurant" dir="ltr"></label>
+    <button class="primary" type="submit">إنشاء المطعم</button>
+   </form>
+   <p id="create-message" class="message" role="status"></p>
+  </section>
+  <footer>RestroCloud · منصة مركزية متعددة المطاعم</footer>
+ </main>
+</div>
+<script type="module" src="platform.js"></script>
+</body></html>
