@@ -7,16 +7,16 @@ RestroCloud منصة مركزية لإدارة عدة مطاعم، مع موقع
 - الرابط على GitHub Pages: `https://mohammad1194629.github.io/RestroCloud/platform.html`
 
 ## مواقع المطاعم ولوحاتها
-يستخدم الإصدار الحالي قالب واجهة مشتركاً مع إعدادات وبيانات مستقلة لكل مطعم. يتم تحديد المطعم عبر slug في الرابط:
-- واجهة الزبائن: `index.html?r=restaurant-slug`
+يستخدم الإصدار الحالي قالب واجهة مشتركاً مع إعدادات وبيانات مستقلة لكل مطعم. لكل مطعم مسار مستقل للزبائن، مع لوحة إدارة منفصلة بالوصول إلى slug الخاص به:
+- واجهة الزبائن: `restaurants/restaurant-slug/`
 - لوحة المطعم: `admin.html?r=restaurant-slug`
 
 المطاعم المسجلة:
-- مطعم مندي ريف اليمني — `mandi-reef-yemeni`
-- مطعم الباشا — `al-basha`
-- مطعم الأسماك البزي — `al-bazzi-fish`
-- Papatya Cafe — `papatya-cafe`
-- دار النكهة — `dar-alnakha`
+- مطعم مندي ريف اليمني — `restaurants/mandi-reef-yemeni/`
+- مطعم الباشا — `restaurants/al-basha/`
+- مطعم الأسماك البزي — `restaurants/al-bazzi-fish/`
+- Papatya Cafe — `restaurants/papatya-cafe/`
+- دار النكهة — `restaurants/dar-alnakha/`
 - مطعم القلعة تلعفر — `al-qalaa-talafar` (تم الحفاظ على سجل المطعم السابق).
 
 ## ملفات الواجهة
