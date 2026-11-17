@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 const SUPABASE_URL="https://ajnmwemjpofmbbuoaiqp.supabase.co";
 const SUPABASE_KEY="sb_publishable_w-Z2T2MWYvRnLn71_qW85Q_o1DPJKaP";
-let RESTAURANT_ID=null;
+let RESTAURANT_ID=null,CURRENT_RESTAURANT_NAME="";
 const RESTAURANT_SLUG=new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
 const CART_STORAGE_KEY="restrocloud-cart:"+RESTAURANT_SLUG;
 const FAVORITES_STORAGE_KEY="restrocloud-favorites:"+RESTAURANT_SLUG;
@@ -118,8 +118,8 @@ async function loadMenu(){
  const cfg=settingRes.data||{};
  const put=(id,value)=>{const el=$("#"+id);if(el&&value)el.textContent=value;};
  const hide=(id,visible)=>{const el=$("#"+id);if(el)el.classList.toggle("hidden",!visible);};
- const restaurantName=cfg.display_name||"مطعم القلعة تلعفر";
- put("restaurant-name",cfg.hero_title||cfg.display_name||"مطعم القلعة");
+ const restaurantName=cfg.display_name||CURRENT_RESTAURANT_NAME||"المطعم";
+ put("restaurant-name",cfg.hero_title||restaurantName);
  put("footer-brand",restaurantName);put("header-brand-mark",restaurantName.slice(0,1));
  document.title=restaurantName+" | قائمة الطعام";
  put("discover-button-text",cfg.discover_button_text||"اكتشف قائمة الطعام");
@@ -267,6 +267,7 @@ async function initializeRestaurant(){
   return;
  }
  RESTAURANT_ID=restaurant.id;
+ CURRENT_RESTAURANT_NAME=restaurant.name;
  document.title=restaurant.name+" | قائمة الطعام";
  $("#restaurant-name").textContent=restaurant.name;
  $("#footer-brand").textContent=restaurant.name;
