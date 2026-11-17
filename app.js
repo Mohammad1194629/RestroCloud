@@ -2,7 +2,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 const SUPABASE_URL="https://ajnmwemjpofmbbuoaiqp.supabase.co";
 const SUPABASE_KEY="sb_publishable_w-Z2T2MWYvRnLn71_qW85Q_o1DPJKaP";
 let RESTAURANT_ID=null,CURRENT_RESTAURANT_NAME="";
-const RESTAURANT_SLUG=new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const RESTAURANT_SLUG=document.body.dataset.restaurantSlug||new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const ROOT_PATH=document.body.dataset.root||"";
 const CART_STORAGE_KEY="restrocloud-cart:"+RESTAURANT_SLUG;
 const FAVORITES_STORAGE_KEY="restrocloud-favorites:"+RESTAURANT_SLUG;
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
@@ -273,7 +274,7 @@ async function initializeRestaurant(){
  $("#footer-brand").textContent=restaurant.name;
  $("#header-brand-mark").textContent=restaurant.name.slice(0,1);
  const adminLink=document.querySelector(".menu-dropdown-panel a");
- if(adminLink)adminLink.href="admin.html?r="+encodeURIComponent(RESTAURANT_SLUG);
+ if(adminLink)adminLink.href=ROOT_PATH+"admin.html?r="+encodeURIComponent(RESTAURANT_SLUG);
  updateOrderFields();
  renderCart();
  await loadMenu();
