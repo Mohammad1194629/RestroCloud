@@ -1,7 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 const SUPABASE_URL="https://ajnmwemjpofmbbuoaiqp.supabase.co";
 const SUPABASE_KEY="sb_publishable_w-Z2T2MWYvRnLn71_qW85Q_o1DPJKaP";
-const RESTAURANT_ID="9c9143d1-27cf-41ac-ad6b-cc67ca08dd69";
+let RESTAURANT_ID=null;
+const RESTAURANT_SLUG=new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const CART_STORAGE_KEY="restrocloud-cart:"+RESTAURANT_SLUG;
+const FAVORITES_STORAGE_KEY="restrocloud-favorites:"+RESTAURANT_SLUG;
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=s=>document.querySelector(s);
 const notice=$("#notice"),categoriesEl=$("#category-list"),productsEl=$("#product-grid");
@@ -11,10 +14,10 @@ let activeService="captain",serviceNames={},favoritesButtonLabel="♡ المفض
 const checkoutPanel=$("#checkout-panel"),checkoutMessage=$("#checkout-message");
 let products=[],tables=[],activeCategory="all",orderingEnabled=false,tableLoadFailed=false,searchTerm="",showFavorites=false;
 const cart=new Map();
-function saveCart(){try{localStorage.setItem("restrocloud-cart",JSON.stringify([...cart.values()].map(i=>({id:i.id,quantity:i.quantity}))));}catch{}}
-function restoreCart(){try{const saved=JSON.parse(localStorage.getItem("restrocloud-cart")||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),quantity:q});});}catch{}}
+function saveCart(){try{localStorage.setItem(CART_STORAGE_KEY,JSON.stringify([...cart.values()].map(i=>({id:i.id,quantity:i.quantity}))));}catch{}}
+function restoreCart(){try{const saved=JSON.parse(localStorage.getItem(CART_STORAGE_KEY)||"[]");saved.forEach(row=>{const p=products.find(x=>x.id===row.id);const q=Math.max(0,Math.min(99,Number(row.quantity)||0));if(p&&q)cart.set(p.id,{id:p.id,name:p.name,price:Number(p.price),quantity:q});});}catch{}}
 let favorites=new Set();
-try{favorites=new Set(JSON.parse(localStorage.getItem("restrocloud-favorites")||"[]"));}catch{favorites=new Set();}
+try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)||"[]"));}catch{favorites=new Set();}
 const money=v=>new Intl.NumberFormat("ar-IQ").format(Number(v||0))+" د.ع";
 function renderCart(){
  const qty=[...cart.values()].reduce((s,i)=>s+i.quantity,0);
@@ -68,7 +71,7 @@ function renderProducts(){
   const body=document.createElement("div");body.className="product-body";
   const titleRow=document.createElement("div");titleRow.className="product-title-row";
   const title=document.createElement("h3");title.textContent=p.name;
-  const favorite=document.createElement("button");favorite.type="button";favorite.className="favorite-btn"+(favorites.has(p.id)?" is-favorite":"");favorite.textContent=favorites.has(p.id)?"♥":"♡";favorite.setAttribute("aria-label",favorites.has(p.id)?"إزالة من المفضلة":"إضافة للمفضلة");favorite.onclick=()=>{if(favorites.has(p.id))favorites.delete(p.id);else favorites.add(p.id);try{localStorage.setItem("restrocloud-favorites",JSON.stringify([...favorites]));}catch{}renderProducts();};
+  const favorite=document.createElement("button");favorite.type="button";favorite.className="favorite-btn"+(favorites.has(p.id)?" is-favorite":"");favorite.textContent=favorites.has(p.id)?"♥":"♡";favorite.setAttribute("aria-label",favorites.has(p.id)?"إزالة من المفضلة":"إضافة للمفضلة");favorite.onclick=()=>{if(favorites.has(p.id))favorites.delete(p.id);else favorites.add(p.id);try{localStorage.setItem(FAVORITES_STORAGE_KEY,JSON.stringify([...favorites]));}catch{}renderProducts();};
   titleRow.append(title,favorite);
   const desc=document.createElement("p");desc.textContent=p.description||"";
   if(p.is_spicy){const tag=document.createElement("span");tag.className="spicy-badge";tag.textContent="🌶️ حار";body.append(tag);}
@@ -231,7 +234,7 @@ $("#checkout-form").addEventListener("submit",async e=>{
   });
   if(error)throw error;
   if(!data||!data.order_number)throw new Error("لم يصل تأكيد من قاعدة البيانات. لا تعِد إرسال الطلب قبل مراجعة المطعم.");
-  cart.clear();renderCart();try{localStorage.removeItem("restrocloud-cart");}catch{}
+  cart.clear();renderCart();try{localStorage.removeItem(CART_STORAGE_KEY);}catch{}
   form.reset();$("#order-type").value="dine_in";updateOrderFields();
   checkoutMessage.textContent="تم استلام طلبك بنجاح. رقم الطلب: "+data.order_number+" — المجموع: "+money(data.total)+". احتفظ برقم الطلب.";
  }catch(err){
@@ -255,4 +258,23 @@ $("#contact-form").addEventListener("submit",async e=>{
  if(error){status.textContent="تعذر إرسال الرسالة حالياً: "+error.message;return;}
  e.target.reset();status.textContent="وصلت رسالتك إلى إدارة المطعم، شكراً لتواصلك.";
 });
-updateOrderFields();renderCart();loadMenu();
+async function initializeRestaurant(){
+ const {data:restaurant,error}=await supabase.from("restaurants").select("id,name,status").eq("slug",RESTAURANT_SLUG).maybeSingle();
+ if(error||!restaurant||restaurant.status!=="active"){
+  notice.textContent="هذا المطعم غير متاح حالياً أو لم يتم تفعيله بعد.";
+  notice.classList.remove("hidden");
+  $("#checkout-submit").disabled=true;
+  return;
+ }
+ RESTAURANT_ID=restaurant.id;
+ document.title=restaurant.name+" | قائمة الطعام";
+ $("#restaurant-name").textContent=restaurant.name;
+ $("#footer-brand").textContent=restaurant.name;
+ $("#header-brand-mark").textContent=restaurant.name.slice(0,1);
+ const adminLink=document.querySelector(".menu-dropdown-panel a");
+ if(adminLink)adminLink.href="admin.html?r="+encodeURIComponent(RESTAURANT_SLUG);
+ updateOrderFields();
+ renderCart();
+ await loadMenu();
+}
+initializeRestaurant();
