@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#26352b">
+  <meta name="description" content="قائمة الطعام الإلكترونية لـ Papatya Cafe">
+  <title>Papatya Cafe | قائمة الطعام</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body data-restaurant-slug="papatya-cafe" data-root="../../">
+    <nav class="topbar" aria-label="التنقل السريع">
+      <span class="brand-mark" id="header-brand-mark">ق</span>
+      <div class="header-actions">
+        <button id="header-cart-open" class="header-cart-btn" type="button" aria-label="فتح السلة">
+          <span aria-hidden="true">🛒</span><b id="header-cart-count">٠</b>
+        </button>
+        <details class="menu-dropdown">
+          <summary class="menu-toggle" aria-label="فتح القائمة" title="القائمة">
+            <span></span><span></span><span></span>
+          </summary>
+          <div class="menu-dropdown-panel">
+            <a href="../../admin.html?r=papatya-cafe" aria-label="فتح لوحة تحكم المطعم">لوحة التحكم</a>
+          </div>
+        </details>
+      </div>
+    </nav>
+  <header class="hero">
+    <div class="hero-copy">
+      <span class="hero-kicker" id="welcome-text">أهلاً وسهلاً بكم</span>
+      <h1 id="restaurant-name">مطعم القلعة</h1>
+      <p id="restaurant-description">تلعفر · نكهة تجمعنا</p>
+      <a href="#menu" class="primary-btn"><span id="discover-button-text">اكتشف قائمة الطعام</span> <span aria-hidden="true">←</span></a>
+      <div class="restaurant-info-strip" aria-label="معلومات المطعم">
+        <div id="address-info"><span id="address-label">📍 عنوان المطعم</span><strong id="restaurant-address">تلعفر</strong></div>
+        <div id="reservation-info"><span id="reservation-label">☎️ رقم الحجز</span><strong id="reservation-phone">يُحدّد من إدارة المطعم</strong></div>
+        <div id="hours-info"><span id="hours-label">🕒 أوقات العمل</span><strong id="working-hours">يُحدّد من إدارة المطعم</strong></div>
+      </div>
+      <div class="hero-points" id="feature-tags"><span>🥘 نكهات عراقية</span><span>🍽️ أطباق متنوعة</span><span>✨ تجربة سهلة</span></div>
+    </div>
+  </header>
+  <section class="table-services" aria-labelledby="services-title">
+    <div class="services-heading"><span class="eyebrow dark" id="services-eyebrow">خدمة أسرع على طاولتك</span><h2 id="services-title">طلب خدمات الطاولة</h2><p id="services-description">اختر الخدمة وسنرسل طلبك مباشرة إلى فريق المطعم.</p></div>
+    <div class="service-actions" id="service-actions"></div>
+  </section>
+  <main id="menu" class="page-wrap">
+    <section class="intro-row">
+      <div><span class="eyebrow dark" id="menu-eyebrow">قائمتنا</span><h2 id="menu-title">اختر طبقك المفضل</h2><p id="menu-subtitle">اكتشف الأطباق والمشروبات والحلويات.</p></div>
+      <div class="cart-count" id="cart-count">السلة ٠</div>
+    </section>
+    <div class="menu-tools">
+      <label class="search-box"><span aria-hidden="true">⌕</span><input id="menu-search" type="search" id="menu-search" placeholder="ابحث عن طبق أو مشروب..." autocomplete="off"></label>
+      <button id="favorites-toggle" class="favorites-toggle" type="button" aria-pressed="false"><span id="favorites-button-text">♡ المفضلة</span></button>
+    </div>
+    <div id="notice" class="notice">جارٍ تحميل قائمة الطعام...</div>
+    <div id="category-list" class="category-list" aria-label="أقسام الطعام"></div>
+    <section id="product-grid" class="product-grid"></section>
+    <section class="cart-panel" id="cart-panel" aria-live="polite">
+      <div class="cart-panel-copy"><strong id="cart-summary">لم تضف أي صنف بعد.</strong><small id="cart-preview">سلتك فارغة</small></div>
+      <button id="checkout-open" class="cart-checkout-btn" type="button">تفاصيل السلة</button>
+    </section>
+    <div id="cart-view" class="cart-view hidden">
+    <section id="checkout-panel" class="checkout-panel">
+      <div class="checkout-head"><div><span class="eyebrow dark">إتمام الطلب</span><h2>تفاصيل سلة المشتريات</h2></div><div class="checkout-head-actions"><button id="cart-clear" class="outline-btn" type="button">حذف كل الطلبات</button><button id="checkout-close" class="danger-btn" type="button">إغلاق</button></div></div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="checkout-total">المجموع: <strong id="checkout-total">٠ د.ع</strong></div>
+      <form id="checkout-form">
+        <div class="field-grid">
+          <label class="field">نوع الطلب
+            <select id="order-type" required>
+              <option value="dine_in">تناول الطعام داخل المطعم</option>
+              <option value="delivery">توصيل إلى العنوان (دليفري)</option>
+              <option value="pickup">استلام من المطعم</option>
+            </select>
+          </label>
+          <label class="field">اسم الزبون<input id="customer-name" maxlength="100" placeholder="الاسم"></label>
+          <label class="field" id="table-field">رقم الطاولة
+            <select id="table-id"><option value="">اختر الطاولة</option></select>
+          </label>
+          <label class="field" id="phone-field">رقم الهاتف<input id="customer-phone" type="tel" maxlength="30" placeholder="07xxxxxxxxx"></label>
+          <label class="field hidden" id="address-field">عنوان التوصيل<input id="delivery-address" maxlength="300" placeholder="المنطقة وأقرب نقطة دالة"></label>
+        </div>
+        <label class="field checkout-notes">ملاحظات على الطلب<textarea id="order-notes" maxlength="500" placeholder="مثلاً: بدون بصل، أو ملاحظات أخرى"></textarea></label>
+        <p id="checkout-message" class="status-msg" role="status"></p>
+        <button id="checkout-submit" class="solid-btn checkout-submit" type="submit">إرسال الطلب إلى المطعم</button>
+        <p id="ordering-disabled-note" class="small-note">استقبال الطلبات غير مفعّل حالياً. القائمة والأسعار تجريبية.</p>
+      </form>
+    </section>
+    </div>
+  </main>
+    <section id="contact" class="contact-section">
+      <div class="contact-copy"><span class="eyebrow dark" id="contact-eyebrow">تواصل معنا</span><h2 id="contact-title">يسعدنا سماع رأيك</h2><p id="contact-description">أرسل استفسارك أو ملاحظتك إلى إدارة المطعم.</p></div>
+      <form id="contact-form" class="contact-form">
+        <label class="field">الاسم<input id="contact-name" maxlength="100" required placeholder="اسمك"></label>
+        <label class="field">رقم الهاتف (اختياري)<input id="contact-phone" maxlength="40" type="tel" placeholder="07xxxxxxxxx"></label>
+        <label class="field">رسالتك<textarea id="contact-message" maxlength="2000" required placeholder="اكتب رسالتك هنا..."></textarea></label>
+        <button class="solid-btn" id="contact-submit-text" type="submit">إرسال الرسالة</button>
+        <p id="contact-status" class="status-msg" role="status"></p>
+      </form>
+    </section>
+  <div id="service-view" class="service-view hidden" role="dialog" aria-modal="true" aria-labelledby="service-modal-title">
+    <form id="service-form" class="service-modal-card">
+      <div class="checkout-head"><div><span class="eyebrow dark">خدمات الطاولة</span><h2 id="service-modal-title">إرسال طلب خدمة</h2></div><button id="service-close" class="danger-btn" type="button">إغلاق</button></div>
+      <p id="service-selected-label">اختر رقم الطاولة لإرسال طلبك.</p>
+      <label class="field">رقم الطاولة<select id="service-table-id" required><option value="">اختر الطاولة</option></select></label>
+      <p id="service-message" class="status-msg" role="status"></p>
+      <button class="solid-btn checkout-submit" type="submit">إرسال طلب الخدمة</button>
+    </form>
+  </div>
+  <footer><strong id="footer-brand">مطعم القلعة تلعفر</strong><span id="footer-phone"></span><a id="footer-map" class="footer-map hidden" target="_blank" rel="noopener">موقع المطعم على الخريطة</a><small id="footer-text">قائمة الطعام الإلكترونية</small></footer>
+  <script type="module" src="../../app.js"></script>
+</body>
+</html>
