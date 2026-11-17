@@ -5,6 +5,7 @@
 <meta name="theme-color" content="#26372c">
 <meta name="description" content="دار النكهة - قائمة طعام وطلبات الطاولات">
 <title>دار النكهة | قائمة الطعام</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -102,8 +103,8 @@ if(v==='menu')el.innerHTML='<h4>إدارة قائمة الطعام</h4><button c
 if(v==='reports')el.innerHTML='<h4>التقارير المختصرة</h4><div class="stats"><div class="stat"><small>إجمالي الطلبات</small><strong>'+state.orders.length+'</strong></div><div class="stat"><small>إجمالي المبيعات</small><strong>'+money(state.orders.reduce((a,x)=>a+x.total,0))+'</strong></div><div class="stat"><small>الخدمات</small><strong>'+state.services.length+'</strong></div></div><p class="muted">هذه أرقام محلية للمعاينة وليست تقارير محاسبية.</p>';
 if(v==='settings')el.innerHTML='<h4>إعدادات الموقع</h4><div class="field"><label>اسم المطعم</label><input id="settingName" value="'+state.settings.name+'"></div><div class="field"><label>رقم الحجز</label><input placeholder="أدخل رقم الهاتف"></div><div class="field"><label>العنوان</label><input placeholder="أدخل عنوان المطعم"></div><div class="field"><label>ساعات العمل</label><input placeholder="مثال: 12 ظهراً - 12 ليلاً"></div><button class="btn wide" onclick="saveSettings()">حفظ الإعدادات</button>';
 if(v==='password')el.innerHTML='<h4>تغيير الرمز السري التجريبي</h4><div class="field"><label>الرمز الجديد</label><input id="newPass" type="password"></div><button class="btn wide" onclick="changePassword()">حفظ الرمز</button>';
-if(v==='qr')el.innerHTML='<h4>رموز QR للطاولات</h4><p class="muted">روابط تجريبية للطاولات. تتطلب مكتبة QR اتصالاً بالإنترنت.</p><div class="qr-grid" id="qrGrid"></div><button class="btn wide" style="margin-top:12px" onclick="window.print()">طباعة الرموز</button><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><script>setTimeout(()=>{if(window.QRCode){document.querySelectorAll("[data-qr]").forEach(el=>new QRCode(el,{text:location.origin+location.pathname+"?table="+el.dataset.qr,width:90,height:90}))}},300)<\/script>';
-if(v==='qr'){let grid=document.getElementById('qrGrid');grid.innerHTML=Array.from({length:20},(_,i)=>'<div class="qr-box"><div data-qr="'+(i+1)+'"></div>طاولة '+(i+1)+'</div>').join('')}
+if(v==='qr')el.innerHTML='<h4>رموز QR للطاولات</h4><p class="muted">كل رمز يفتح الموقع مع تحديد رقم الطاولة تلقائياً.</p><div class="qr-grid" id="qrGrid"></div><button class="btn wide" style="margin-top:12px" onclick="window.print()">طباعة الرموز</button>';
+if(v==='qr'){let grid=document.getElementById('qrGrid');grid.innerHTML=Array.from({length:20},(_,i)=>'<div class="qr-box"><div id="qr'+(i+1)+'"></div>طاولة '+(i+1)+'</div>').join('');if(window.QRCode){for(let n=1;n<=20;n++){new QRCode(document.getElementById('qr'+n),{text:location.origin+location.pathname+'?table='+n,width:90,height:90})}}}
 }
 function orderHtml(o){return '<div class="admin-row"><b>طلب #'+o.id+' · طاولة '+o.table+'</b><p>'+o.items.map(x=>x.name+' × '+x.qty).join('، ')+'</p><b>'+money(o.total)+'</b> · <span class="status">'+o.status+'</span> <button class="add" onclick="completeOrder('+o.id+')">اكتمال</button></div>'}
 function completeOrder(id){let o=state.orders.find(x=>x.id===String(id));if(o)o.status='مكتمل';save();adminPanel();toast('تم تحديث حالة الطلب')}
