@@ -1,6 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 const supabase=createClient("https://ajnmwemjpofmbbuoaiqp.supabase.co","sb_publishable_w-Z2T2MWYvRnLn71_qW85Q_o1DPJKaP");
-const RESTAURANT_ID="9c9143d1-27cf-41ac-ad6b-cc67ca08dd69",BUCKET="restaurant-product-images";
+let RESTAURANT_ID=null;
+const RESTAURANT_SLUG=new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const BUCKET="restaurant-product-images";
 const $=s=>document.querySelector(s);
 const loginPanel=$("#login-panel"),dashboard=$("#dashboard"),loginMsg=$("#login-msg"),productMsg=$("#product-msg");
 const fileInput=$("#product-image-file"),urlInput=$("#product-image"),preview=$("#image-preview"),saveButton=$("#save-product");
@@ -27,11 +29,24 @@ async function loadDashboard(){
  const {data:{user},error:authError}=await supabase.auth.getUser();
  if(authError){msg(loginMsg,authError.message,true);return;}
  if(!user){loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");return;}
+ const {data:restaurant,error:restaurantError}=await supabase.from("restaurants").select("id,name,status").eq("slug",RESTAURANT_SLUG).maybeSingle();
+ if(restaurantError||!restaurant){msg(loginMsg,restaurantError?.message||"لم يتم العثور على هذا المطعم.",true);return;}
+ RESTAURANT_ID=restaurant.id;
+ const platformOwner=user.app_metadata?.role==="platform_owner";
  const {data:m,error}=await supabase.from("memberships").select("role").eq("restaurant_id",RESTAURANT_ID).eq("user_id",user.id).maybeSingle();
- if(error||!m||!["owner","admin","manager"].includes(m.role)){
+ if(!platformOwner&&(error||!m||!["owner","admin","manager"].includes(m.role))){
   await supabase.auth.signOut();loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");
   msg(loginMsg,error?.message||"هذا الحساب غير مخوّل لإدارة المطعم.",true);return;
  }
+ if(restaurant.status!=="active"&&!platformOwner){
+  msg(loginMsg,"هذا المطعم غير مفعّل حالياً. راجع مدير المنصة.",true);return;
+ }
+ document.title=restaurant.name+" | لوحة الإدارة";
+ const brand=document.querySelector(".sidebar-brand strong");if(brand)brand.textContent=restaurant.name;
+ const sidebarName=document.querySelector(".sidebar-restaurant");if(sidebarName)sidebarName.textContent=restaurant.name;
+ const loginBrand=document.querySelector(".login-card .eyebrow");if(loginBrand)loginBrand.textContent=restaurant.name;
+ const loginDesc=document.querySelector(".login-card h1")?.nextElementSibling;if(loginDesc)loginDesc.textContent=restaurant.name;
+ const siteLink=document.querySelector(".view-site-link");if(siteLink)siteLink.href="index.html?r="+encodeURIComponent(RESTAURANT_SLUG);
  loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");
  await loadCategories();await loadProducts();await loadCategoryManager();await loadOrders();await loadSettings();await loadOverview();
 }
