@@ -15,3 +15,22 @@
 .order{border:1px solid var(--line);border-radius:15px;padding:13px;margin:10px 0;background:#fff}.order select{width:100%;margin-top:10px}.badge{background:#f3ead5;color:#76551e;border-radius:20px;padding:4px 9px;font-size:11px}.notice{padding:10px;background:#e6eee0;border-radius:10px;color:#38543c;font-size:13px;margin:10px 0}
 footer{text-align:center;color:var(--muted);font-size:11px;padding:22px 0}
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:38px}.hero h1{font-size:38px}}@media(max-width:360px){.grid{grid-template-columns:1fr}.servicegrid{grid-template-columns:1fr}}
+
+
+/* Demo v2: compact restaurant header and service bar */
+.info-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px;margin:12px 0;overflow:auto}
+.info-cell{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:var(--ink)}
+.info-cell b{font-size:11px}.info-icon{font-size:16px}
+.customer-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.table-chip{background:#e6eee0;color:#38543c;border-radius:20px;padding:7px 10px;font-size:12px;font-weight:800}
+.cart-chip{background:var(--ink);color:white;border-radius:20px;padding:7px 11px;font-size:12px}
+.servicebar{display:flex;gap:6px;overflow:auto;margin:10px 0 16px}
+.servicebar button{flex:1;min-width:72px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:9px 5px;font-size:11px;color:var(--ink);font-weight:700;white-space:nowrap}
+.servicebar button span{display:block;font-size:18px;margin-bottom:2px}
+.offer{border:1px solid #ead5b2;background:#fff8e9}
+.offer-tag{background:#a64d2f;color:white;padding:3px 7px;border-radius:7px;font-size:10px}
+.adminnav{display:flex;gap:7px;overflow:auto;margin:10px 0}
+.adminnav button{white-space:nowrap;padding:9px 12px;border-radius:10px;background:#eee9dc;color:var(--ink);font-weight:700;font-size:12px}
+.adminnav button.active{background:var(--ink);color:white}
+.receipt{border:1px dashed #a9a18f;border-radius:14px;padding:14px;background:#fffefa}
+@media(max-width:420px){.info-strip{gap:12px}.info-cell{font-size:10px}.servicebar button{min-width:66px}.wrap{padding:12px}}
