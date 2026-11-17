@@ -1,7 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 const supabase=createClient("https://ajnmwemjpofmbbuoaiqp.supabase.co","sb_publishable_w-Z2T2MWYvRnLn71_qW85Q_o1DPJKaP");
 let RESTAURANT_ID=null;
-const RESTAURANT_SLUG=new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const RESTAURANT_SLUG=document.body.dataset.restaurantSlug||new URLSearchParams(location.search).get("r")||"al-qalaa-talafar";
+const ROOT_PATH=document.body.dataset.root||"";
 const BUCKET="restaurant-product-images";
 const $=s=>document.querySelector(s);
 const loginPanel=$("#login-panel"),dashboard=$("#dashboard"),loginMsg=$("#login-msg"),productMsg=$("#product-msg");
@@ -46,7 +47,7 @@ async function loadDashboard(){
  const sidebarName=document.querySelector(".sidebar-restaurant");if(sidebarName)sidebarName.textContent=restaurant.name;
  const loginBrand=document.querySelector(".login-card .eyebrow");if(loginBrand)loginBrand.textContent=restaurant.name;
  const loginDesc=document.querySelector(".login-card h1")?.nextElementSibling;if(loginDesc)loginDesc.textContent=restaurant.name;
- const siteLink=document.querySelector(".view-site-link");if(siteLink)siteLink.href="index.html?r="+encodeURIComponent(RESTAURANT_SLUG);
+ const siteLink=document.querySelector(".view-site-link");if(siteLink)siteLink.href=ROOT_PATH+"index.html?r="+encodeURIComponent(RESTAURANT_SLUG);
  loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");
  await loadCategories();await loadProducts();await loadCategoryManager();await loadOrders();await loadSettings();await loadOverview();
 }
